@@ -36,7 +36,7 @@ public class FirestationControllerTest {
     }
 
     @Test
-    public void testPutFirestation() throws Exception{
+    public void testUpdateFirestation() throws Exception{
         Firestation f = new Firestation();
         f.setAdress("adressTest");
         f.setStation(7);
@@ -53,7 +53,7 @@ public class FirestationControllerTest {
     @Test
     public void testGetFirestation() throws Exception{
         mockMvc.perform(get("/firestation/{id}", 1))
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
     @Test

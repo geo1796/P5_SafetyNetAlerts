@@ -35,9 +35,16 @@ public class FirestationControllerIT {
 		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[3].adress", is("adressTest")));
 	}
 
-	@Order(4)
 	@Test
-	public void testPutFirestation() throws Exception{
+	public void testCreateNotValidFirestation() throws Exception{
+		Firestation f = new Firestation();
+		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Order(5)
+	@Test
+	public void testUpdateFirestation() throws Exception{
 		Firestation f = new Firestation();
 		f.setAdress("adressTest");
 		f.setStation(7);
@@ -45,6 +52,17 @@ public class FirestationControllerIT {
 				.andExpect(status().isOk());
 
 		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].adress", is("adressTest")));
+	}
+
+	@Order(4)
+	@Test
+	public void testUpdateFirestationWithNullAttributes() throws Exception{
+		Firestation f = new Firestation();
+		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].adress", is("adress1")))
+				.andExpect(jsonPath("$[0].station", is(1)));
 	}
 
 	@Order(1)
@@ -62,7 +80,13 @@ public class FirestationControllerIT {
 				.andExpect(status().isOk()).andExpect(jsonPath("$.adress", is("adress1")));
 	}
 
-	@Order(5)
+	@Test
+	public void testGetNotExistingFirestation() throws Exception{
+		mockMvc.perform(get("/firestation/{id}", 18))
+				.andExpect(status().isNotFound());
+	}
+
+	@Order(6)
 	@Test
 	public void testDeleteFirestation() throws Exception{
 

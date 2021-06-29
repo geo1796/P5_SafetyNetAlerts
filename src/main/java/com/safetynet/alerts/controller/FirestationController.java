@@ -4,6 +4,7 @@ import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.service.FirestationService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,13 @@ public class FirestationController {
 
     @PostMapping("/firestation")
     public ResponseEntity<Firestation> createFirestation(@RequestBody Firestation firestation) {
-        return new ResponseEntity<>(firestationService.saveFirestation(firestation), HttpStatus.CREATED);
+        try {
+            return new ResponseEntity<>(firestationService.saveFirestation(firestation), HttpStatus.CREATED);
+        }
+        catch(DataIntegrityViolationException e)
+        {
+            return new ResponseEntity<>(new Firestation(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/firestations")
@@ -29,9 +36,11 @@ public class FirestationController {
     }
 
     @GetMapping("/firestation/{id}")
-    public Firestation getFirestation(@PathVariable("id") final Long id) {
+    public ResponseEntity<Firestation> getFirestation(@PathVariable("id") final Long id) {
         Optional<Firestation> firestation = firestationService.getFirestation(id);
-        return firestation.orElse(null);
+        if(firestation.isPresent())
+            return new ResponseEntity<>(firestation.get(), HttpStatus.OK);
+        return new ResponseEntity<>(firestation.orElse(null), HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/firestation/{id}")
@@ -43,10 +52,10 @@ public class FirestationController {
         }
         catch(EmptyResultDataAccessException e)
         {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Firestation(), HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Firestation(), HttpStatus.NO_CONTENT);
 
     }
 
@@ -61,10 +70,10 @@ public class FirestationController {
 			if(adress != null) {
 				currentFirestation.setAdress(adress);
 			}
-			int station = 0;
+			int station;
 			station = firestation.getStation();
 			if(station != 0) {
-				currentFirestation.setStation(station);;
+				currentFirestation.setStation(station);
 			}
 
 			firestationService.saveFirestation(currentFirestation);
