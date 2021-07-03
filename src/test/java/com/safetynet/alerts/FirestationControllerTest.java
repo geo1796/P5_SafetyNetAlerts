@@ -29,7 +29,7 @@ public class FirestationControllerTest {
     @Test
     public void testCreateFirestation() throws Exception{
         Firestation f = new Firestation();
-        f.setAdress("adressTest");
+        f.setAddress("adressTest");
         f.setStation(7);
         mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
                 .andExpect(status().isCreated());
@@ -38,7 +38,7 @@ public class FirestationControllerTest {
     @Test
     public void testUpdateFirestation() throws Exception{
         Firestation f = new Firestation();
-        f.setAdress("adressTest");
+        f.setAddress("adressTest");
         f.setStation(7);
         mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
                 .andExpect(status().isOk());

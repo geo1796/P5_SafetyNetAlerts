@@ -3,7 +3,6 @@ package com.safetynet.alerts.controller;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.service.FirestationService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -66,9 +65,9 @@ public class FirestationController {
 		if(f.isPresent()) {
 			Firestation currentFirestation = f.get();
 
-			String adress = firestation.getAdress();
+			String adress = firestation.getAddress();
 			if(adress != null) {
-				currentFirestation.setAdress(adress);
+				currentFirestation.setAddress(adress);
 			}
 			int station;
 			station = firestation.getStation();

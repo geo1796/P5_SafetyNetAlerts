@@ -27,12 +27,13 @@ public class FirestationControllerIT {
 	@Test
 	public void testCreateFirestation() throws Exception{
 		Firestation f = new Firestation();
-		f.setAdress("adressTest");
+		f.setAddress("addressTest");
 		f.setStation(7);
 		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
 				.andExpect(status().isCreated());
 
-		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[3].adress", is("adressTest")));
+		mockMvc.perform(get("/firestation/14")).andExpect(status().isOk()).andExpect(jsonPath("$.address", is("addressTest")))
+		.andExpect(jsonPath("$.station", is(7)));
 	}
 
 	@Test
@@ -46,12 +47,12 @@ public class FirestationControllerIT {
 	@Test
 	public void testUpdateFirestation() throws Exception{
 		Firestation f = new Firestation();
-		f.setAdress("adressTest");
+		f.setAddress("addressTest");
 		f.setStation(7);
 		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
 				.andExpect(status().isOk());
 
-		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].adress", is("adressTest")));
+		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("addressTest")));
 	}
 
 	@Order(4)
@@ -61,15 +62,15 @@ public class FirestationControllerIT {
 		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
 				.andExpect(status().isOk());
 
-		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].adress", is("adress1")))
-				.andExpect(jsonPath("$[0].station", is(1)));
+		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("1509 Culver St")))
+				.andExpect(jsonPath("$[0].station", is(3)));
 	}
 
 	@Order(1)
 	@Test
 	public void testGetFirestations() throws Exception {
 		
-		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].adress", is("adress1")));
+		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("1509 Culver St")));
 
 	}
 
@@ -77,7 +78,7 @@ public class FirestationControllerIT {
 	@Test
 	public void testGetFirestation() throws Exception{
 		mockMvc.perform(get("/firestation/{id}", 1))
-				.andExpect(status().isOk()).andExpect(jsonPath("$.adress", is("adress1")));
+				.andExpect(status().isOk()).andExpect(jsonPath("$.address", is("1509 Culver St")));
 	}
 
 	@Test
@@ -91,7 +92,7 @@ public class FirestationControllerIT {
 	public void testDeleteFirestation() throws Exception{
 
 		mockMvc.perform(delete("/firestation/1")).andExpect(status().isNoContent());
-		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].adress", is("adress2")));
+		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("29 15th St")));
 
 	}
 
@@ -105,7 +106,7 @@ public class FirestationControllerIT {
 
 	@Test
 	public void testDeleteNotExistingFirestation() throws Exception{
-		mockMvc.perform(delete("/firestation/7"))
+		mockMvc.perform(delete("/firestation/20"))
 				.andExpect(status().isNotFound());
 	}
 }

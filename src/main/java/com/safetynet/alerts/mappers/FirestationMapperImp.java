@@ -16,7 +16,7 @@ public class FirestationMapperImp implements FirestationMapper {
 
         firestationDto.setId(firestation.getId());
         firestationDto.setStation(firestation.getStation());
-        firestationDto.setAdress(firestation.getAdress());
+        firestationDto.setAdress(firestation.getAddress());
 
         return firestationDto;
     }

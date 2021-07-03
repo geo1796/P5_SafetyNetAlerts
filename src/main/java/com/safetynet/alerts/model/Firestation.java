@@ -18,7 +18,7 @@ public class Firestation {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String adress;
+	private String address;
 
 	private int station;
 

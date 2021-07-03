@@ -1,5 +1,6 @@
 package com.safetynet.alerts.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.safetynet.alerts.model.Firestation;
@@ -36,5 +37,7 @@ public class FirestationService {
 	public Firestation saveFirestation(Firestation firestation) {
 		return firestationRepository.save(firestation);
 	}
+
+	public List<Firestation> saveFirestations(List<Firestation> firestations) { return (List<Firestation>) firestationRepository.saveAll(firestations); }
 
 }
