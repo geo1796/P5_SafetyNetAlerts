@@ -3,9 +3,11 @@ package com.safetynet.alerts;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.safetynet.alerts.jsonParsing.AlertsData;
 import com.safetynet.alerts.jsonParsing.Json;
+import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.service.FirestationService;
+import com.safetynet.alerts.service.MedicalRecordService;
 import com.safetynet.alerts.service.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,14 +16,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+@AllArgsConstructor
 @SpringBootApplication
 public class AlertsApplication implements CommandLineRunner {
 
-	@Autowired
 	FirestationService firestationService;
-
-	@Autowired
 	PersonService personService;
+	MedicalRecordService medicalRecordService;
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(AlertsApplication.class, args);
@@ -36,6 +38,7 @@ public class AlertsApplication implements CommandLineRunner {
 
 		firestationService.saveFirestations(data.getFirestations());
 		personService.savePersons(data.getPersons());
+		medicalRecordService.saveMedicalRecords(data.getMedicalRecords());
 
 	}
 

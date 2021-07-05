@@ -1,15 +1,18 @@
 package com.safetynet.alerts;
 
+import static com.safetynet.alerts.jsonParsing.Json.stringify;
+import static com.safetynet.alerts.jsonParsing.Json.toJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynet.alerts.controller.FirestationController;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.service.FirestationService;
+import com.safetynet.alerts.service.MedicalRecordService;
+import com.safetynet.alerts.service.PersonService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -26,12 +29,18 @@ public class FirestationControllerTest {
     @MockBean
     private FirestationService firestationService;
 
+    @MockBean
+    private PersonService personService;
+
+    @MockBean
+    private MedicalRecordService medicalRecordService;
+
     @Test
     public void testCreateFirestation() throws Exception{
         Firestation f = new Firestation();
         f.setAddress("adressTest");
         f.setStation(7);
-        mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+        mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
                 .andExpect(status().isCreated());
     }
 
@@ -40,7 +49,7 @@ public class FirestationControllerTest {
         Firestation f = new Firestation();
         f.setAddress("adressTest");
         f.setStation(7);
-        mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+        mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
                 .andExpect(status().isOk());
     }
 
@@ -60,13 +69,5 @@ public class FirestationControllerTest {
     public void testDeleteFirestation() throws Exception{
         mockMvc.perform(delete("/firestation/1"))
                 .andExpect(status().isNoContent());
-    }
-
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

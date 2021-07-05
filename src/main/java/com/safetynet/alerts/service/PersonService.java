@@ -1,6 +1,5 @@
 package com.safetynet.alerts.service;
 
-import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repository.PersonRepository;
 import lombok.AllArgsConstructor;
@@ -25,5 +24,9 @@ public class PersonService {
 
     public Iterable<Person> getPersons() {
         return personRepository.findAll();
+    }
+
+    public void deletePerson(final Long id) throws IllegalArgumentException {
+        personRepository.deleteById(id);
     }
 }

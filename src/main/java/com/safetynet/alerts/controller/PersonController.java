@@ -1,10 +1,10 @@
 package com.safetynet.alerts.controller;
 
-import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.PersonService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,6 +77,22 @@ public class PersonController {
     @GetMapping("/persons")
     public Iterable<Person> getPersons() {
         return personService.getPersons();
+    }
+
+    @DeleteMapping("/person/{id}")
+    public ResponseEntity<Person> deletePerson(@PathVariable("id") final Long id) {
+
+        try
+        {
+            personService.deletePerson(id);
+        }
+        catch(EmptyResultDataAccessException e)
+        {
+            return new ResponseEntity<>(new Person(), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(new Person(), HttpStatus.NO_CONTENT);
+
     }
 
 }

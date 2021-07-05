@@ -2,24 +2,21 @@ package com.safetynet.alerts.model;
 
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
+import javax.persistence.*;
+import java.util.ArrayList;
 
 @Data
+@Entity
+@Table(name = "medicalRecords")
 public class MedicalRecord {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String firstName;
     private String lastName;
-    private Date birthdate;
-    private List<String> medications;
-    private List<String> allergies;
+    private String birthdate;
+    private ArrayList<String> medications;
+    private ArrayList<String> allergies;
 
-    public Date getBirthdate() {
-        Date copy = this.birthdate;
-        return copy;
-    }
-
-    public void setBirthdate(Date birthdate) {
-        if(birthdate != null)
-            this.birthdate = new Date(birthdate.getTime());
-    }
 }

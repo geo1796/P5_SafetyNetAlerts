@@ -1,12 +1,12 @@
 package com.safetynet.alerts.integration;
 
+import static com.safetynet.alerts.jsonParsing.Json.stringify;
+import static com.safetynet.alerts.jsonParsing.Json.toJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynet.alerts.model.Firestation;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class FirestationControllerIT {
 		Firestation f = new Firestation();
 		f.setAddress("addressTest");
 		f.setStation(7);
-		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
 				.andExpect(status().isCreated());
 
 		mockMvc.perform(get("/firestation/14")).andExpect(status().isOk()).andExpect(jsonPath("$.address", is("addressTest")))
@@ -39,7 +39,7 @@ public class FirestationControllerIT {
 	@Test
 	public void testCreateNotValidFirestation() throws Exception{
 		Firestation f = new Firestation();
-		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
 				.andExpect(status().isBadRequest());
 	}
 
@@ -49,7 +49,7 @@ public class FirestationControllerIT {
 		Firestation f = new Firestation();
 		f.setAddress("addressTest");
 		f.setStation(7);
-		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
 				.andExpect(status().isOk());
 
 		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("addressTest")));
@@ -59,7 +59,7 @@ public class FirestationControllerIT {
 	@Test
 	public void testUpdateFirestationWithNullAttributes() throws Exception{
 		Firestation f = new Firestation();
-		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(asJsonString(f)))
+		mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
 				.andExpect(status().isOk());
 
 		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("1509 Culver St")))
@@ -94,14 +94,6 @@ public class FirestationControllerIT {
 		mockMvc.perform(delete("/firestation/1")).andExpect(status().isNoContent());
 		mockMvc.perform(get("/firestations")).andExpect(status().isOk()).andExpect(jsonPath("$[0].address", is("29 15th St")));
 
-	}
-
-	public static String asJsonString(final Object obj) {
-		try {
-			return new ObjectMapper().writeValueAsString(obj);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Test
