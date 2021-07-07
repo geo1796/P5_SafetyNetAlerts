@@ -1,5 +1,6 @@
 package com.safetynet.alerts.controller;
 
+import com.safetynet.alerts.dto.PersonEmailDto;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.PersonService;
 import lombok.AllArgsConstructor;
@@ -69,9 +70,7 @@ public class PersonController {
     @GetMapping("/person/{id}")
     public ResponseEntity<Person> getPerson(@PathVariable("id") final Long id) {
         Optional<Person> person = personService.getPerson(id);
-        if(person.isPresent())
-            return new ResponseEntity<>(person.get(), HttpStatus.OK);
-        return new ResponseEntity<>(person.orElse(null), HttpStatus.NOT_FOUND);
+        return person.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(person.orElse(null), HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/persons")
@@ -94,5 +93,8 @@ public class PersonController {
         return new ResponseEntity<>(new Person(), HttpStatus.NO_CONTENT);
 
     }
+
+    @GetMapping("/communityEmail")
+    public Iterable<PersonEmailDto> getEmails(@RequestParam("city") final String city) { return personService.getEmails(city); }
 
 }

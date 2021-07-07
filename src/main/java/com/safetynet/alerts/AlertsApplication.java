@@ -3,7 +3,6 @@ package com.safetynet.alerts;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.safetynet.alerts.jsonParsing.AlertsData;
 import com.safetynet.alerts.jsonParsing.Json;
-import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.service.FirestationService;
 import com.safetynet.alerts.service.MedicalRecordService;
 import com.safetynet.alerts.service.PersonService;
@@ -23,7 +22,6 @@ public class AlertsApplication implements CommandLineRunner {
 	FirestationService firestationService;
 	PersonService personService;
 	MedicalRecordService medicalRecordService;
-
 
 	public static void main(String[] args) {
 		SpringApplication.run(AlertsApplication.class, args);

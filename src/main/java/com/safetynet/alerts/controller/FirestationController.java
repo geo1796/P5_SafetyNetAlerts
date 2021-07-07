@@ -37,9 +37,7 @@ public class FirestationController {
     @GetMapping("/firestation/{id}")
     public ResponseEntity<Firestation> getFirestation(@PathVariable("id") final Long id) {
         Optional<Firestation> firestation = firestationService.getFirestation(id);
-        if(firestation.isPresent())
-            return new ResponseEntity<>(firestation.get(), HttpStatus.OK);
-        return new ResponseEntity<>(firestation.orElse(null), HttpStatus.NOT_FOUND);
+        return firestation.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(firestation.orElse(null), HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/firestation/{id}")

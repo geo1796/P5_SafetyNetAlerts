@@ -60,9 +60,7 @@ public class MedicalRecordController {
     @GetMapping("/medicalRecord/{id}")
     public ResponseEntity<MedicalRecord> getMedicalRecord(@PathVariable("id") final Long id) {
         Optional<MedicalRecord> medicalRecord = medicalRecordService.getMedicalRecord(id);
-        if(medicalRecord.isPresent())
-            return new ResponseEntity<>(medicalRecord.get(), HttpStatus.OK);
-        return new ResponseEntity<>(medicalRecord.orElse(null), HttpStatus.NOT_FOUND);
+        return medicalRecord.map(record -> new ResponseEntity<>(record, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(medicalRecord.orElse(null), HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/medicalRecords")
