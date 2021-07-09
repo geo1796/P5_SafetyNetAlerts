@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -21,17 +24,28 @@ public class MedicalRecordController {
     @PostMapping("/medicalRecord")
     public ResponseEntity<MedicalRecord> createMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
         try {
+            LocalDate.parse(medicalRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/yyyy")); // va laver une DateTimeParseException si la date est invalide
+            if(medicalRecord.getFirstName() == null || medicalRecord.getLastName() == null) {
+                throw new DataIntegrityViolationException("not valid medicalRecord");
+            }
             return new ResponseEntity<>(medicalRecordService.saveMedicalRecord(medicalRecord), HttpStatus.CREATED);
         }
-        catch(DataIntegrityViolationException e)
+        catch(DataIntegrityViolationException | DateTimeParseException e)
         {
             return new ResponseEntity<>(new MedicalRecord(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PutMapping("/medicalRecord/{id}")
-    public MedicalRecord updateMedicalRecord(@PathVariable("id") final Long id, @RequestBody MedicalRecord medicalRecord) {
+    public ResponseEntity<MedicalRecord> updateMedicalRecord(@PathVariable("id") final Long id, @RequestBody MedicalRecord medicalRecord) {
         Optional<MedicalRecord> m = medicalRecordService.getMedicalRecord(id);
+        String newBirthDate = medicalRecord.getBirthdate();
+        try{
+            LocalDate.parse(newBirthDate, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        }
+        catch(DateTimeParseException e){
+            return new ResponseEntity<>(medicalRecord, HttpStatus.BAD_REQUEST);
+        }
         if(m.isPresent()) {
             MedicalRecord currentMedicalRecord = m.get();
 
@@ -51,9 +65,10 @@ public class MedicalRecordController {
             }
 
             medicalRecordService.saveMedicalRecord(currentMedicalRecord);
-            return currentMedicalRecord;
-        } else {
-            return null;
+            return new ResponseEntity<>(currentMedicalRecord, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(medicalRecord, HttpStatus.OK);
         }
     }
 
@@ -68,12 +83,12 @@ public class MedicalRecordController {
         return medicalRecordService.getMedicalRecords();
     }
 
-    @DeleteMapping("/medicalRecord/{id}")
-    public ResponseEntity<MedicalRecord> deleteMedicalRecord(@PathVariable("id") final Long id) {
+    @DeleteMapping("/medicalRecord/{lastName}/{firstName}")
+    public ResponseEntity<MedicalRecord> deleteMedicalRecord(@PathVariable("lastName") final String lastName, @PathVariable("firstName") final String firstName) {
 
         try
         {
-            medicalRecordService.deleteMedicalRecord(id);
+            medicalRecordService.deleteMedicalRecord(lastName, firstName);
         }
         catch(EmptyResultDataAccessException e)
         {

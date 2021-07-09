@@ -1,6 +1,7 @@
 package com.safetynet.alerts.controller;
 
 import com.safetynet.alerts.model.Firestation;
+import com.safetynet.alerts.model.PersonListByFirestation;
 import com.safetynet.alerts.service.FirestationService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -58,7 +59,7 @@ public class FirestationController {
 
 
     @PutMapping("/firestation/{id}")
-	public Firestation updateFirestation(@PathVariable("id") final Long id, @RequestBody Firestation firestation) {
+	public ResponseEntity<Firestation> updateFirestation(@PathVariable("id") final Long id, @RequestBody Firestation firestation) {
 		Optional<Firestation> f = firestationService.getFirestation(id);
 		if(f.isPresent()) {
 			Firestation currentFirestation = f.get();
@@ -74,12 +75,18 @@ public class FirestationController {
 			}
 
 			firestationService.saveFirestation(currentFirestation);
-			return currentFirestation;
-		} else {
-			return null;
+			return new ResponseEntity<>(currentFirestation, HttpStatus.OK);
 		}
+		else if (firestation.getAddress() != null && firestation.getStation() != 0)
+		    return createFirestation(firestation);
+
+		return new ResponseEntity<>(firestation, HttpStatus.BAD_REQUEST);
+
 	}
 
-
+    @GetMapping("/firestation")
+    public PersonListByFirestation getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
+        return firestationService.getPersonByFirestation(stationNumber);
+    }
 
 }

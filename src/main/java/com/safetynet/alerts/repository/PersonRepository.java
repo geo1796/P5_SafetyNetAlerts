@@ -10,4 +10,7 @@ import java.util.List;
 public interface PersonRepository extends CrudRepository<Person, Long> {
 
     List<Person> findAllByCity(String city);
+    List<Person> findAllByAddress(String address);
+    List<Person> findAllByLastName(String lastName);
+    List<Person> findAllByFirstName(String firstName);
 }

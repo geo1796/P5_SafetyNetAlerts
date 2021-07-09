@@ -50,7 +50,7 @@ public class FirestationControllerTest {
         f.setAddress("adressTest");
         f.setStation(7);
         mockMvc.perform(put("/firestation/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test

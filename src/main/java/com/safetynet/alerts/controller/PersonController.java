@@ -21,6 +21,8 @@ public class PersonController {
     @PostMapping("/person")
     public ResponseEntity<Person> createPerson(@RequestBody Person person) {
         try {
+            if(person.getZip() == 0)
+                throw new DataIntegrityViolationException("zip code can't be null");
             return new ResponseEntity<>(personService.savePerson(person), HttpStatus.CREATED);
         }
         catch(DataIntegrityViolationException e)
@@ -30,10 +32,16 @@ public class PersonController {
     }
 
     @PutMapping("/person/{id}")
-    public Person updatePerson(@PathVariable("id") final Long id, @RequestBody Person person) {
+    public ResponseEntity<Person> updatePerson(@PathVariable("id") final Long id, @RequestBody Person person) {
         Optional<Person> p = personService.getPerson(id);
         if(p.isPresent()) {
             Person currentPerson = p.get();
+
+            String personFirstName = person.getFirstName();
+            String personLastName = person.getLastName();
+
+            if( ( personFirstName != null && !personFirstName.equals(currentPerson.getFirstName())) || ( personLastName != null && !personLastName.equals(currentPerson.getLastName())))
+                return new ResponseEntity<>(new Person(), HttpStatus.BAD_REQUEST);
 
             String address = person.getAddress();
             if(address != null) {
@@ -61,9 +69,10 @@ public class PersonController {
             }
 
             personService.savePerson(currentPerson);
-            return currentPerson;
-        } else {
-            return null;
+            return new ResponseEntity<>(currentPerson, HttpStatus.OK);
+        }
+        else {
+            return createPerson(person);
         }
     }
 
@@ -78,12 +87,12 @@ public class PersonController {
         return personService.getPersons();
     }
 
-    @DeleteMapping("/person/{id}")
-    public ResponseEntity<Person> deletePerson(@PathVariable("id") final Long id) {
+    @DeleteMapping("/person/{lastName}/{firstName}")
+    public ResponseEntity<Person> deletePerson(@PathVariable("lastName") final String lastName, @PathVariable("firstName") final String firstName) {
 
         try
         {
-            personService.deletePerson(id);
+            personService.deletePerson(lastName, firstName);
         }
         catch(EmptyResultDataAccessException e)
         {
@@ -96,5 +105,6 @@ public class PersonController {
 
     @GetMapping("/communityEmail")
     public Iterable<PersonEmailDto> getEmails(@RequestParam("city") final String city) { return personService.getEmails(city); }
+
 
 }

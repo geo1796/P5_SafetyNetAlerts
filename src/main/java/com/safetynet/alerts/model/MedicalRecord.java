@@ -15,7 +15,7 @@ public class MedicalRecord {
     private Long id;
     private String firstName;
     private String lastName;
-    private String birthdate;
+    private String birthdate = "01/01/2000";
     private ArrayList<String> medications;
     private ArrayList<String> allergies;
 
