@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.ArrayList;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
@@ -46,11 +45,9 @@ public class MedicalRecordControllerIT {
     @Test
     public void testCreateMedicalRecord() throws Exception {
         MedicalRecord medicalRecord = new MedicalRecord();
-        ArrayList<String> randomList = new ArrayList<>();
-        medicalRecord.setFirstName("");
-        medicalRecord.setLastName("");
-        medicalRecord.setMedications(randomList);
-        medicalRecord.setAllergies(randomList);
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+        medicalRecord.setBirthdate("01/01/2000");
 
         mockMvc.perform(post("/medicalRecord").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(medicalRecord))))
         .andExpect(status().isCreated());
@@ -63,19 +60,26 @@ public class MedicalRecordControllerIT {
     }
 
     @Test
+    public void testCreateMedicalRecordWithoutBirthDate() throws Exception {
+        MedicalRecord m = new MedicalRecord();
+        m.setLastName("Doe");
+        m.setFirstName("John");
+        mockMvc.perform(post("/medicalRecord").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(m))))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void testCreateMedicalRecordWithNotValidBirthDate() throws Exception {
         MedicalRecord medicalRecord = new MedicalRecord();
-        ArrayList<String> randomList = new ArrayList<>();
-        medicalRecord.setFirstName("");
-        medicalRecord.setLastName("");
-        medicalRecord.setBirthdate("");
-        medicalRecord.setMedications(randomList);
-        medicalRecord.setAllergies(randomList);
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+        medicalRecord.setBirthdate("abcdefg");
 
         mockMvc.perform(post("/medicalRecord").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(medicalRecord))))
         .andExpect(status().isBadRequest());
     }
 
+    @Order(3)
     @Test
     public void testUpdateMedicalRecord() throws Exception {
         MedicalRecord m = new MedicalRecord();
@@ -90,9 +94,49 @@ public class MedicalRecordControllerIT {
     @Test
     public void testUpdateMedicalRecordWithNotValidBirthDate() throws Exception {
         MedicalRecord m = new MedicalRecord();
-        m.setBirthdate("");
+        m.setBirthdate("abcdefg");
         mockMvc.perform(put("/medicalRecord/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(m))))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Order(2)
+    @Test
+    public void testUpdateMedicalRecordWithChangingName() throws Exception {
+        MedicalRecord m = new MedicalRecord();
+        m.setFirstName("John");
+        m.setLastName("Doe");
+        mockMvc.perform(put("/medicalRecord/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(m))))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/medicalRecord/1")).andExpect(jsonPath("$.lastName", is("Boyd")));
+    }
+
+    @Test
+    public void testUpdateNotExistingMedicalRecordWithValidMedicalRecord() throws Exception {
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+        medicalRecord.setBirthdate("01/01/1900");
+
+        mockMvc.perform(put("/medicalRecord/75").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(medicalRecord))))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void testUpdateNotExistingMedicalRecordWithNotValidMedicalRecord() throws Exception {
+        mockMvc.perform(put("/medicalRecord/75").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(new MedicalRecord()))))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    public void testDeleteMedicalRecord() throws Exception {
+        mockMvc.perform(delete("/medicalRecord/Boyd/John")).andExpect(status().isNoContent());
+        mockMvc.perform(get("/medicalRecord/1")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteNotExistingMedicalRecord() throws Exception {
+        mockMvc.perform(delete("/medicalRecord/Son/Goku")).andExpect(status().isNotFound());
     }
 
 }

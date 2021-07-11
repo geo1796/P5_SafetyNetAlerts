@@ -1,6 +1,7 @@
 package com.safetynet.alerts.controller;
 
 import com.safetynet.alerts.dto.PersonEmailDto;
+import com.safetynet.alerts.model.ChildAlert;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.PersonService;
 import lombok.AllArgsConstructor;
@@ -104,7 +105,8 @@ public class PersonController {
     }
 
     @GetMapping("/communityEmail")
-    public Iterable<PersonEmailDto> getEmails(@RequestParam("city") final String city) { return personService.getEmails(city); }
+    public Iterable<PersonEmailDto> getCommunityEmail(@RequestParam("city") final String city) { return personService.getCommunityEmail(city); }
 
-
+    @GetMapping("/childAlert")
+    public Iterable<ChildAlert> getChildAlert(@RequestParam("address") final String address) { return personService.getChildAlert(address); }
 }

@@ -1,5 +1,6 @@
 package com.safetynet.alerts.controller;
 
+import com.safetynet.alerts.dto.PhoneAlertDto;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.PersonListByFirestation;
 import com.safetynet.alerts.service.FirestationService;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -87,6 +89,11 @@ public class FirestationController {
     @GetMapping("/firestation")
     public PersonListByFirestation getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
         return firestationService.getPersonByFirestation(stationNumber);
+    }
+
+    @GetMapping("/phoneAlert")
+    public List<PhoneAlertDto> getPhoneAlert(@RequestParam("firestation") final int firestationNumber) {
+        return firestationService.getPhoneAlert(firestationNumber);
     }
 
 }

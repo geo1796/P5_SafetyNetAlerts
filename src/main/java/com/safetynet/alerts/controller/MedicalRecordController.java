@@ -25,7 +25,7 @@ public class MedicalRecordController {
     public ResponseEntity<MedicalRecord> createMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
         try {
             LocalDate.parse(medicalRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/yyyy")); // va laver une DateTimeParseException si la date est invalide
-            if(medicalRecord.getFirstName() == null || medicalRecord.getLastName() == null) {
+            if(medicalRecord.getFirstName().equals("") || medicalRecord.getLastName().equals("")) {
                 throw new DataIntegrityViolationException("not valid medicalRecord");
             }
             return new ResponseEntity<>(medicalRecordService.saveMedicalRecord(medicalRecord), HttpStatus.CREATED);
@@ -40,14 +40,17 @@ public class MedicalRecordController {
     public ResponseEntity<MedicalRecord> updateMedicalRecord(@PathVariable("id") final Long id, @RequestBody MedicalRecord medicalRecord) {
         Optional<MedicalRecord> m = medicalRecordService.getMedicalRecord(id);
         String newBirthDate = medicalRecord.getBirthdate();
-        try{
-            LocalDate.parse(newBirthDate, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-        }
-        catch(DateTimeParseException e){
-            return new ResponseEntity<>(medicalRecord, HttpStatus.BAD_REQUEST);
-        }
+
         if(m.isPresent()) {
             MedicalRecord currentMedicalRecord = m.get();
+
+            if(!newBirthDate.equals(currentMedicalRecord.getBirthdate()) && !newBirthDate.equals("")) {
+                try {
+                    LocalDate.parse(newBirthDate, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                } catch (DateTimeParseException e) {
+                    return new ResponseEntity<>(medicalRecord, HttpStatus.BAD_REQUEST);
+                }
+            }
 
             ArrayList<String> medications = medicalRecord.getMedications();
             if(medications != null) {
@@ -60,7 +63,7 @@ public class MedicalRecordController {
             }
 
             String birthDate = medicalRecord.getBirthdate();
-            if(birthDate != null) {
+            if(!birthDate.equals("")) {
                 currentMedicalRecord.setBirthdate(birthDate);
             }
 
@@ -68,7 +71,7 @@ public class MedicalRecordController {
             return new ResponseEntity<>(currentMedicalRecord, HttpStatus.OK);
         }
         else {
-            return new ResponseEntity<>(medicalRecord, HttpStatus.OK);
+            return createMedicalRecord(medicalRecord);
         }
     }
 

@@ -137,4 +137,18 @@ public class FirestationControllerIT {
 				.andExpect(jsonPath("$.numberOfChildren", is(0)))
 				.andExpect(jsonPath("$.personCoveredByThisStation", hasSize(0)));
 	}
+
+	@Test
+	public void testGetPhoneAlert() throws Exception{
+		mockMvc.perform(get("/phoneAlert?firestation=1")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.[0].phone", is("841-874-6512")));
+	}
+
+	@Test
+	public void testGetPhoneAlertWithNotExistingStation() throws Exception{
+		mockMvc.perform(get("/phoneAlert?firestation=5")).andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(0)));
+	}
+
+
 }

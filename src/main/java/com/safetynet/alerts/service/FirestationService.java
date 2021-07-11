@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Optional;
 
 import com.safetynet.alerts.dto.PersonDto;
+import com.safetynet.alerts.dto.PhoneAlertDto;
 import com.safetynet.alerts.mappers.PersonMapper;
+import com.safetynet.alerts.mappers.PhoneAlertMapper;
 import com.safetynet.alerts.model.Firestation;
 
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.model.PersonListByFirestation;
 import com.safetynet.alerts.repository.FirestationRepository;
+import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
+import com.safetynet.alerts.util.StringDateHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +30,9 @@ public class FirestationService {
 
 	private FirestationRepository firestationRepository;
 	private PersonRepository personRepository;
-	private PersonService personService;
+	private MedicalRecordRepository medicalRecordRepository;
 	private PersonMapper personMapper;
+	private PhoneAlertMapper phoneAlertMapper;
 	
 	public Optional<Firestation> getFirestation(final Long id) {
 		return firestationRepository.findById(id);
@@ -50,6 +55,7 @@ public class FirestationService {
 	public PersonListByFirestation getPersonByFirestation(int stationNumber){
 		List<Person> personList = new ArrayList<>();
 		List<Firestation> firestations = firestationRepository.findAllByStation(stationNumber);
+		StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
 
 		for(Firestation firestation : firestations){
 			personList.addAll(personRepository.findAllByAddress(firestation.getAddress()));
@@ -60,7 +66,7 @@ public class FirestationService {
 		int numberOfChildren = 0;
 		for(Person person : personList){
 
-			if(personService.isAdult(person))
+			if(stringDateHandler.isAdult(person, medicalRecordRepository))
 				numberOfAdults++;
 			else
 				numberOfChildren++;
@@ -71,4 +77,18 @@ public class FirestationService {
 		return new PersonListByFirestation(numberOfAdults, numberOfChildren, personDtoList);
 	}
 
+    public List<PhoneAlertDto> getPhoneAlert(int firestationNumber) {
+		List<Firestation> firestationList = firestationRepository.findAllByStation(firestationNumber);
+		List<PhoneAlertDto> phoneAlertDtoList = new ArrayList<>();
+
+		for(Firestation firestation : firestationList){
+			for(Person person : personRepository.findAllByAddress(firestation.getAddress())) {
+				PhoneAlertDto phoneAlertDto = phoneAlertMapper.toDto(person);
+				if(!phoneAlertDtoList.contains(phoneAlertDto))
+					phoneAlertDtoList.add(phoneAlertDto);
+			}
+		}
+
+		return phoneAlertDtoList;
+    }
 }

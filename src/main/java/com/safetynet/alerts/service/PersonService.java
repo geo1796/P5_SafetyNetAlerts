@@ -1,20 +1,23 @@
 package com.safetynet.alerts.service;
 
+import com.safetynet.alerts.dto.HomeMemberDto;
 import com.safetynet.alerts.dto.PersonEmailDto;
+import com.safetynet.alerts.mappers.ChildMapper;
+import com.safetynet.alerts.mappers.HomeMemberMapper;
 import com.safetynet.alerts.mappers.PersonMapper;
 import com.safetynet.alerts.mappers.PersonEmailMapper;
+import com.safetynet.alerts.model.ChildAlert;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
+import com.safetynet.alerts.util.PersonAndMedicalRecordConverter;
+import com.safetynet.alerts.util.StringDateHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +31,8 @@ public class PersonService {
     private MedicalRecordRepository medicalRecordRepository;
     private PersonEmailMapper personEmailMapper;
     private PersonMapper personMapper;
+    private ChildMapper childMapper;
+    private HomeMemberMapper homeMemberMapper;
 
     public Person savePerson(Person person) { return personRepository.save(person); }
 
@@ -54,7 +59,7 @@ public class PersonService {
             personRepository.deleteById(personToDelete.getId());
     }
 
-    public Iterable<PersonEmailDto> getEmails(String city) {
+    public Iterable<PersonEmailDto> getCommunityEmail(String city) {
         List<Person> personList = personRepository.findAllByCity(city);
         ArrayList<PersonEmailDto> listOfEmails = new ArrayList<>();
         for(Person person : personList){
@@ -64,22 +69,32 @@ public class PersonService {
         return listOfEmails;
     }
 
-    public Boolean isAdult(Person person){
-        final long personId = person.getId();
-        Optional<MedicalRecord> optionalMedicalRecord = medicalRecordRepository.findById(personId);
 
-        if(optionalMedicalRecord.isPresent()) {
-            MedicalRecord medicalRecord = optionalMedicalRecord.get();
-            LocalDate birthDate = convertBirthDateToLocalDate(medicalRecord.getBirthdate());
-            LocalDate now = LocalDate.now();
-            Period period = Period.between(birthDate, now);
-            return period.getYears() >= 18;
+    public Iterable<ChildAlert> getChildAlert(String address) {
+        List<Person> personList = personRepository.findAllByAddress(address);
+        List<ChildAlert> result = new ArrayList<>();
+        StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
+        PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
+
+        for (Person person : personList) {
+            ChildAlert childAlert = new ChildAlert();
+            MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
+            if (medicalRecord != null) {
+                int age = stringDateHandler.getAgeFromStringDate(medicalRecord.getBirthdate());
+                if (age < 18) {
+                    childAlert.fromChildDto(childMapper.toDto(person));
+                    childAlert.setAge(age);
+                    List<HomeMemberDto> homeMembers = new ArrayList<>(); // liste des autres habitants du foyer
+                    for (Person homeMember : personList) {
+                        if (homeMember != person)
+                            homeMembers.add(homeMemberMapper.toDto(homeMember));
+                    }
+                    childAlert.setHomeMemberDtoList(homeMembers);
+                    result.add(childAlert);
+                }
+            }
         }
-            else
-                throw new IllegalArgumentException("Impossible de déterminer l'âge de la personne ID = " + personId);
+        return result;
     }
 
-    public LocalDate convertBirthDateToLocalDate(String birthDate){
-        return LocalDate.parse(birthDate, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-    }
 }

@@ -130,4 +130,16 @@ public class PersonControllerIT {
         mockMvc.perform(get("/person/75")).andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testGetChildAlert() throws Exception{
+        mockMvc.perform(get("/childAlert?address=1509 Culver St")).andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void testGetChildAlertWithNotExistingAddress() throws Exception{
+        mockMvc.perform(get("/childAlert?address=namek")).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
 }
