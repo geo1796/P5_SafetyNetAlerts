@@ -37,6 +37,22 @@ public class PersonControllerIT {
     }
 
     @Test
+    public void testDeletePersonsWhichHaveSameNames() throws Exception{
+        Person person = new Person();
+        person.setFirstName("John");
+        person.setLastName("Boyd");
+        person.setCity("city");
+        person.setAddress("address");
+        person.setEmail("email");
+        person.setPhone("phone");
+        person.setZip(1);
+        mockMvc.perform(post("/person").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(person))))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/person/Boyd/John")).andExpect(status().isMultipleChoices());
+    }
+
+    @Test
     public void testCreatePerson() throws Exception {
         Person p = new Person();
         p.setFirstName("firstName");
@@ -139,6 +155,22 @@ public class PersonControllerIT {
     @Test
     public void testGetChildAlertWithNotExistingAddress() throws Exception{
         mockMvc.perform(get("/childAlert?address=namek")).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void testGetPersonInfo() throws Exception{
+        mockMvc.perform(get("/personInfo?firstName=John&lastName=Boyd")).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].firstName", is("John")))
+                .andExpect(jsonPath("$[0].lastName", is("Boyd")))
+                .andExpect(jsonPath("$[0].address", is("1509 Culver St")))
+                .andExpect(jsonPath("$[0].email", is("jaboyd@email.com")));
+                //.andExpect(jsonPath("$[0].age", is(37)));
+    }
+
+    @Test
+    public void testGetNotExistingPersonInfo() throws Exception{
+        mockMvc.perform(get("/personInfo?firstName=abcd&lastName=efgh")).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
     }
 

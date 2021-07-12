@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Optional;
 
 import com.safetynet.alerts.dto.PersonDto;
-import com.safetynet.alerts.dto.PhoneAlertDto;
+import com.safetynet.alerts.dto.PersonPhoneDto;
 import com.safetynet.alerts.mappers.PersonMapper;
 import com.safetynet.alerts.mappers.PhoneAlertMapper;
 import com.safetynet.alerts.model.Firestation;
 
 import com.safetynet.alerts.model.Person;
-import com.safetynet.alerts.model.PersonListByFirestation;
+import com.safetynet.alerts.dto.PersonsCoveredByThisFirestationDto;
 import com.safetynet.alerts.repository.FirestationRepository;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
@@ -52,7 +52,7 @@ public class FirestationService {
 
 	public List<Firestation> saveFirestations(List<Firestation> firestations) { return (List<Firestation>) firestationRepository.saveAll(firestations); }
 
-	public PersonListByFirestation getPersonByFirestation(int stationNumber){
+	public PersonsCoveredByThisFirestationDto getPersonByFirestation(int stationNumber){
 		List<Person> personList = new ArrayList<>();
 		List<Firestation> firestations = firestationRepository.findAllByStation(stationNumber);
 		StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
@@ -74,21 +74,21 @@ public class FirestationService {
 			personDtoList.add(personDto);
 		}
 
-		return new PersonListByFirestation(numberOfAdults, numberOfChildren, personDtoList);
+		return new PersonsCoveredByThisFirestationDto(numberOfAdults, numberOfChildren, personDtoList);
 	}
 
-    public List<PhoneAlertDto> getPhoneAlert(int firestationNumber) {
+    public List<PersonPhoneDto> getPhoneAlert(int firestationNumber) {
 		List<Firestation> firestationList = firestationRepository.findAllByStation(firestationNumber);
-		List<PhoneAlertDto> phoneAlertDtoList = new ArrayList<>();
+		List<PersonPhoneDto> personPhoneDtoList = new ArrayList<>();
 
 		for(Firestation firestation : firestationList){
 			for(Person person : personRepository.findAllByAddress(firestation.getAddress())) {
-				PhoneAlertDto phoneAlertDto = phoneAlertMapper.toDto(person);
-				if(!phoneAlertDtoList.contains(phoneAlertDto))
-					phoneAlertDtoList.add(phoneAlertDto);
+				PersonPhoneDto personPhoneDto = phoneAlertMapper.toDto(person);
+				if(!personPhoneDtoList.contains(personPhoneDto))
+					personPhoneDtoList.add(personPhoneDto);
 			}
 		}
 
-		return phoneAlertDtoList;
+		return personPhoneDtoList;
     }
 }

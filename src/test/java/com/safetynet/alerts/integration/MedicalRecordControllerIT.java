@@ -130,13 +130,25 @@ public class MedicalRecordControllerIT {
 
     @Test
     public void testDeleteMedicalRecord() throws Exception {
-        mockMvc.perform(delete("/medicalRecord/Boyd/John")).andExpect(status().isNoContent());
-        mockMvc.perform(get("/medicalRecord/1")).andExpect(status().isNotFound());
+        mockMvc.perform(delete("/medicalRecord/Boyd/Jacob")).andExpect(status().isNoContent());
+        mockMvc.perform(get("/medicalRecord/2")).andExpect(status().isNotFound());
     }
 
     @Test
     public void testDeleteNotExistingMedicalRecord() throws Exception {
         mockMvc.perform(delete("/medicalRecord/Son/Goku")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeletePersonsWhichHaveSameNames() throws Exception{
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Boyd");
+        medicalRecord.setBirthdate("01/01/2000");
+        mockMvc.perform(post("/medicalRecord").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(medicalRecord))))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/medicalRecord/Boyd/John")).andExpect(status().isMultipleChoices());
     }
 
 }

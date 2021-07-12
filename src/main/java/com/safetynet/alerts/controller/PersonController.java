@@ -1,7 +1,8 @@
 package com.safetynet.alerts.controller;
 
 import com.safetynet.alerts.dto.PersonEmailDto;
-import com.safetynet.alerts.model.ChildAlert;
+import com.safetynet.alerts.dto.PersonInfoDto;
+import com.safetynet.alerts.dto.ChildAlertDto;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.PersonService;
 import lombok.AllArgsConstructor;
@@ -93,14 +94,16 @@ public class PersonController {
 
         try
         {
-            personService.deletePerson(lastName, firstName);
+            return new ResponseEntity<>(personService.deletePerson(lastName, firstName), HttpStatus.NO_CONTENT);
         }
         catch(EmptyResultDataAccessException e)
         {
             return new ResponseEntity<>(new Person(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(new Person(), HttpStatus.NO_CONTENT);
+        catch (IllegalArgumentException e)
+        {
+            return new ResponseEntity<>(new Person(), HttpStatus.MULTIPLE_CHOICES);
+        }
 
     }
 
@@ -108,5 +111,10 @@ public class PersonController {
     public Iterable<PersonEmailDto> getCommunityEmail(@RequestParam("city") final String city) { return personService.getCommunityEmail(city); }
 
     @GetMapping("/childAlert")
-    public Iterable<ChildAlert> getChildAlert(@RequestParam("address") final String address) { return personService.getChildAlert(address); }
+    public Iterable<ChildAlertDto> getChildAlert(@RequestParam("address") final String address) { return personService.getChildAlert(address); }
+
+    @GetMapping("/personInfo")
+    public Iterable<PersonInfoDto> getPersonInfo(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
+        return personService.getPersonInfo(lastName, firstName);
+    }
 }

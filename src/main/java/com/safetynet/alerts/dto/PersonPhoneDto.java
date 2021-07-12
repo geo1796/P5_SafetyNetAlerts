@@ -3,6 +3,6 @@ package com.safetynet.alerts.dto;
 import lombok.Data;
 
 @Data
-public class PhoneAlertDto {
+public class PersonPhoneDto {
     private String phone;
 }

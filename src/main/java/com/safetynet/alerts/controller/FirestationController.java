@@ -1,8 +1,8 @@
 package com.safetynet.alerts.controller;
 
-import com.safetynet.alerts.dto.PhoneAlertDto;
+import com.safetynet.alerts.dto.PersonPhoneDto;
 import com.safetynet.alerts.model.Firestation;
-import com.safetynet.alerts.model.PersonListByFirestation;
+import com.safetynet.alerts.dto.PersonsCoveredByThisFirestationDto;
 import com.safetynet.alerts.service.FirestationService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -87,12 +87,12 @@ public class FirestationController {
 	}
 
     @GetMapping("/firestation")
-    public PersonListByFirestation getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
+    public PersonsCoveredByThisFirestationDto getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
         return firestationService.getPersonByFirestation(stationNumber);
     }
 
     @GetMapping("/phoneAlert")
-    public List<PhoneAlertDto> getPhoneAlert(@RequestParam("firestation") final int firestationNumber) {
+    public List<PersonPhoneDto> getPhoneAlert(@RequestParam("firestation") final int firestationNumber) {
         return firestationService.getPhoneAlert(firestationNumber);
     }
 

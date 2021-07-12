@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,18 +29,34 @@ public class MedicalRecordService {
         return medicalRecordRepository.findAll();
     }
 
-    public void deleteMedicalRecord(final String lastName, final String firstName) throws IllegalArgumentException {
-        List<MedicalRecord> medicalRecordListByLastName = medicalRecordRepository.findAllByLastName(lastName);
+    public Iterable<MedicalRecord> getMedicalRecords(final String lastName, final String firstName){
         List<MedicalRecord> medicalRecordListByFirstName = medicalRecordRepository.findAllByFirstName(firstName);
-        MedicalRecord medicalRecordToDelete = null;
+        List<MedicalRecord> medicalRecordListByLastName = medicalRecordRepository.findAllByLastName(lastName);
 
-        for(MedicalRecord medicalRecordByLastName : medicalRecordListByLastName){
-            if(medicalRecordListByFirstName.contains(medicalRecordByLastName))
-                medicalRecordToDelete = medicalRecordByLastName;
+        ArrayList<MedicalRecord> result = new ArrayList<>();
+        for(MedicalRecord medicalRecord : medicalRecordListByLastName){
+            if(medicalRecordListByFirstName.contains(medicalRecord))
+                result.add(medicalRecord);
         }
+        return result;
+    }
+
+    public MedicalRecord deleteMedicalRecord(final String lastName, final String firstName) throws IllegalArgumentException {
+        MedicalRecord medicalRecordToDelete = null;
+        Iterable<MedicalRecord> medicalRecordIterable = getMedicalRecords(lastName, firstName);
+
+        for(MedicalRecord medicalRecord : medicalRecordIterable){
+            if (medicalRecordToDelete == null)
+                medicalRecordToDelete = medicalRecord;
+            else
+                throw new IllegalArgumentException("plusieurs personnes portent ce nom");
+        }
+
         if(medicalRecordToDelete == null)
             throw new EmptyResultDataAccessException(0);
-        else
+        else {
             medicalRecordRepository.deleteById(medicalRecordToDelete.getId());
+            return medicalRecordToDelete;
+        }
     }
 }

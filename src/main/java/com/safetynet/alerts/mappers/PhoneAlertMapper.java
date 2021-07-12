@@ -1,6 +1,6 @@
 package com.safetynet.alerts.mappers;
 
-import com.safetynet.alerts.dto.PhoneAlertDto;
+import com.safetynet.alerts.dto.PersonPhoneDto;
 import com.safetynet.alerts.model.Person;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -9,5 +9,5 @@ import org.mapstruct.factory.Mappers;
 public interface PhoneAlertMapper {
     PhoneAlertMapper INSTANCE = Mappers.getMapper(PhoneAlertMapper.class);
 
-    PhoneAlertDto toDto(Person person);
+    PersonPhoneDto toDto(Person person);
 }

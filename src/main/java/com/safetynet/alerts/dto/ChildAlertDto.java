@@ -1,14 +1,12 @@
-package com.safetynet.alerts.model;
+package com.safetynet.alerts.dto;
 
-import com.safetynet.alerts.dto.ChildDto;
-import com.safetynet.alerts.dto.HomeMemberDto;
 import com.safetynet.alerts.util.StringDateHandler;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class ChildAlert {
+public class ChildAlertDto {
     private String lastName;
     private String firstName;
     private int age;

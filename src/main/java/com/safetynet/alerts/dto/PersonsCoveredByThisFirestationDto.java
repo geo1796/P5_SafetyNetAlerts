@@ -1,17 +1,16 @@
-package com.safetynet.alerts.model;
+package com.safetynet.alerts.dto;
 
-import com.safetynet.alerts.dto.PersonDto;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class PersonListByFirestation {
+public class PersonsCoveredByThisFirestationDto {
     private int numberOfAdults;
     private int numberOfChildren;
     private List<PersonDto> personCoveredByThisStation;
 
-    public PersonListByFirestation(int numberOfAdults, int numberOfChildren, List<PersonDto> personDtoList){
+    public PersonsCoveredByThisFirestationDto(int numberOfAdults, int numberOfChildren, List<PersonDto> personDtoList){
         this.numberOfAdults = numberOfAdults;
         this.numberOfChildren = numberOfChildren;
         this.personCoveredByThisStation = personDtoList;

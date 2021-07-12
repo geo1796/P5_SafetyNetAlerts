@@ -1,6 +1,7 @@
 package com.safetynet.alerts.controller;
 
 import com.safetynet.alerts.model.MedicalRecord;
+import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.MedicalRecordService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -91,14 +92,15 @@ public class MedicalRecordController {
 
         try
         {
-            medicalRecordService.deleteMedicalRecord(lastName, firstName);
+            return new ResponseEntity<>(medicalRecordService.deleteMedicalRecord(lastName, firstName), HttpStatus.NO_CONTENT);
         }
         catch(EmptyResultDataAccessException e)
         {
             return new ResponseEntity<>(new MedicalRecord(), HttpStatus.NOT_FOUND);
         }
-
-        return new ResponseEntity<>(new MedicalRecord(), HttpStatus.NO_CONTENT);
-
+        catch (IllegalArgumentException e)
+        {
+            return new ResponseEntity<>(new MedicalRecord(), HttpStatus.MULTIPLE_CHOICES);
+        }
     }
 }
