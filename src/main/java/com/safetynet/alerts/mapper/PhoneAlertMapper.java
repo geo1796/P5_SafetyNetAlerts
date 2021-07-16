@@ -1,4 +1,4 @@
-package com.safetynet.alerts.mappers;
+package com.safetynet.alerts.mapper;
 
 import com.safetynet.alerts.dto.PersonPhoneDto;
 import com.safetynet.alerts.model.Person;

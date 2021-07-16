@@ -1,18 +1,20 @@
 package com.safetynet.alerts.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class PersonsCoveredByThisFirestationDto {
     private int numberOfAdults;
     private int numberOfChildren;
-    private List<PersonDto> personCoveredByThisStation;
+    private List<PersonForFirestationDto> personCoveredByThisStation;
 
-    public PersonsCoveredByThisFirestationDto(int numberOfAdults, int numberOfChildren, List<PersonDto> personDtoList){
-        this.numberOfAdults = numberOfAdults;
-        this.numberOfChildren = numberOfChildren;
-        this.personCoveredByThisStation = personDtoList;
-    }
 }

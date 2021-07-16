@@ -1,4 +1,4 @@
-package com.safetynet.alerts.integration;
+package com.safetynet.alerts.integration.controller;
 
 import static com.safetynet.alerts.jsonParsing.Json.stringify;
 import static com.safetynet.alerts.jsonParsing.Json.toJson;

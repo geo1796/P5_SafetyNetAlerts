@@ -1,4 +1,4 @@
-package com.safetynet.alerts.integration;
+package com.safetynet.alerts.integration.controller;
 
 import static com.safetynet.alerts.jsonParsing.Json.stringify;
 import static com.safetynet.alerts.jsonParsing.Json.toJson;
@@ -84,10 +84,10 @@ public class MedicalRecordControllerIT {
     public void testUpdateMedicalRecord() throws Exception {
         MedicalRecord m = new MedicalRecord();
         m.setBirthdate("04/29/1998");
-        mockMvc.perform(put("/medicalRecord/1").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(m))))
+        mockMvc.perform(put("/medicalRecord/2").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(m))))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/medicalRecord/1")).andExpect(jsonPath("$.firstName", is("John")))
+        mockMvc.perform(get("/medicalRecord/2")).andExpect(jsonPath("$.firstName", is("Jacob")))
                 .andExpect(jsonPath("$.birthdate", is("04/29/1998")));
     }
 
@@ -130,13 +130,13 @@ public class MedicalRecordControllerIT {
 
     @Test
     public void testDeleteMedicalRecord() throws Exception {
-        mockMvc.perform(delete("/medicalRecord/Boyd/Jacob")).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/medicalRecord?lastName=Boyd&firstName=Jacob")).andExpect(status().isNoContent());
         mockMvc.perform(get("/medicalRecord/2")).andExpect(status().isNotFound());
     }
 
     @Test
     public void testDeleteNotExistingMedicalRecord() throws Exception {
-        mockMvc.perform(delete("/medicalRecord/Son/Goku")).andExpect(status().isNotFound());
+        mockMvc.perform(delete("/medicalRecord?lastName=Son&firstName=Goku")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class MedicalRecordControllerIT {
         mockMvc.perform(post("/medicalRecord").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(medicalRecord))))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(delete("/medicalRecord/Boyd/John")).andExpect(status().isMultipleChoices());
+        mockMvc.perform(delete("/medicalRecord?lastName=Boyd&firstName=John")).andExpect(status().isMultipleChoices());
     }
 
 }

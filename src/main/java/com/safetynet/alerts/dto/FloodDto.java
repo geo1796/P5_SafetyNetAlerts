@@ -4,10 +4,14 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class HomeMemberDto {
-    private String lastName;
-    private String firstName;
+public class FloodDto {
+
+    String address;
+    List<PersonForFloodAndFireDto> personForFloodAndFireDtoList;
+
 }

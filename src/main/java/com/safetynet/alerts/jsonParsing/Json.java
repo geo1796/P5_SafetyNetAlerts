@@ -26,7 +26,7 @@ public class Json {
     }
 
     public static String stringify(JsonNode node) throws JsonProcessingException {
-        ObjectWriter objectWriter = objectMapper.writer().with(SerializationFeature.INDENT_OUTPUT);
+        ObjectWriter objectWriter = objectMapper.writer();
 
         return objectWriter.writeValueAsString(node);
     }

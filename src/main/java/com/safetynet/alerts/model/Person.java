@@ -1,10 +1,14 @@
 package com.safetynet.alerts.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Entity
 @Table(name = "persons")
 public class Person {
@@ -18,4 +22,5 @@ public class Person {
     private int zip;
     private String phone;
     private String email;
+
 }

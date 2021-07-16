@@ -19,4 +19,8 @@ public class PersonAndMedicalRecordConverter {
         return optionalPerson.orElse(null);
     }
 
+    public int getAgeFromMedicalRecord(MedicalRecord medicalRecord){
+        StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
+        return stringDateHandler.getAgeFromStringDate(medicalRecord.getBirthdate());
+    }
 }

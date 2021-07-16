@@ -1,11 +1,16 @@
 package com.safetynet.alerts.model;
 
-import lombok.Data;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 
-@Data
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Entity
 @Table(name = "medicalRecords")
 public class MedicalRecord {
@@ -18,5 +23,6 @@ public class MedicalRecord {
     private String birthdate = "";
     private ArrayList<String> medications;
     private ArrayList<String> allergies;
+
 
 }

@@ -7,7 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class HomeMemberDto {
-    private String lastName;
+public class PersonForFirestationDto {
+
     private String firstName;
+    private String lastName;
+    private String phone;
+    private String address;
+
 }

@@ -1,18 +1,17 @@
 package com.safetynet.alerts.service;
 
-import com.safetynet.alerts.dto.HomeMemberDto;
-import com.safetynet.alerts.dto.PersonEmailDto;
-import com.safetynet.alerts.dto.PersonInfoDto;
-import com.safetynet.alerts.mappers.*;
-import com.safetynet.alerts.dto.ChildAlertDto;
+import com.safetynet.alerts.dto.*;
+import com.safetynet.alerts.mapper.*;
+import com.safetynet.alerts.mapper.PersonForPersonInfoMapper;
+import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
+import com.safetynet.alerts.repository.FirestationRepository;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
 import com.safetynet.alerts.util.PersonAndMedicalRecordConverter;
 import com.safetynet.alerts.util.StringDateHandler;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -20,18 +19,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Data
 @AllArgsConstructor
 @Service
 public class PersonService {
 
-    private PersonRepository personRepository;
-    private MedicalRecordRepository medicalRecordRepository;
-    private PersonEmailMapper personEmailMapper;
-    private PersonMapper personMapper;
-    private ChildMapper childMapper;
-    private HomeMemberMapper homeMemberMapper;
-    private PersonInfoMapper personInfoMapper;
+    private final PersonRepository personRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
+    private final FirestationRepository firestationRepository;
+    private final PersonEmailMapper personEmailMapper;
+    private final PersonForFirestationMapper personForFirestationMapper;
+    private final ChildMapper childMapper;
+    private final HomeMemberMapper homeMemberMapper;
+    private final PersonForPersonInfoMapper personForPersonInfoMapper;
+    private final PersonForFloodAndFireMapper personForFloodAndFireMapper;
+
+    private PersonForFloodAndFireDto getDtoForFloodUrlAndFireUrl(Person person){
+        PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
+        MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
+        PersonForFloodAndFireDto personForFloodAndFireDto = personForFloodAndFireMapper.toDto(person, medicalRecord);
+        personForFloodAndFireDto.setAge(personAndMedicalRecordConverter.getAgeFromMedicalRecord(medicalRecord));
+
+        return personForFloodAndFireDto;
+    }
+
+    private PersonForPersonInfoDto getDtoForPersonInfoUrl(Person person){
+        PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
+        MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
+        PersonForPersonInfoDto personForPersonInfoDto = this.personForPersonInfoMapper.toDto(person, medicalRecord);
+        personForPersonInfoDto.setAge(personAndMedicalRecordConverter.getAgeFromMedicalRecord(medicalRecord));
+
+        return personForPersonInfoDto;
+    }
+
+    private ChildDto getChildDto(Person person) {
+        PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
+        StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
+        MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
+        ChildDto childDto = null;
+        if (medicalRecord != null) {
+            int age = stringDateHandler.getAgeFromStringDate(medicalRecord.getBirthdate());
+            if (age < 18) {
+                childDto = childMapper.toDto(person);
+                childDto.setAge(age);
+            }
+        }
+        return childDto;
+    }
+
 
     public Person savePerson(Person person) { return personRepository.save(person); }
 
@@ -74,7 +108,7 @@ public class PersonService {
             throw new EmptyResultDataAccessException(0);
     }
 
-    public Iterable<PersonEmailDto> getCommunityEmail(String city) {
+    public Iterable<PersonEmailDto> getCommunityEmailUrl(String city) {
         List<Person> personList = personRepository.findAllByCity(city);
         ArrayList<PersonEmailDto> listOfEmails = new ArrayList<>();
         for(Person person : personList){
@@ -85,41 +119,77 @@ public class PersonService {
     }
 
 
-    public Iterable<ChildAlertDto> getChildAlert(String address) {
+    public Iterable<ChildDto> getChildAlertUrl(String address) {
         List<Person> personList = personRepository.findAllByAddress(address);
-        List<ChildAlertDto> result = new ArrayList<>();
-        StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
-        PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
+        List<ChildDto> result = new ArrayList<>();
 
         for (Person person : personList) {
-            ChildAlertDto childAlertDto = new ChildAlertDto();
-            MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
-            if (medicalRecord != null) {
-                int age = stringDateHandler.getAgeFromStringDate(medicalRecord.getBirthdate());
-                if (age < 18) {
-                    childAlertDto.fromChildDto(childMapper.toDto(person));
-                    childAlertDto.setAge(age);
-                    List<HomeMemberDto> homeMembers = new ArrayList<>(); // liste des autres habitants du foyer
-                    for (Person homeMember : personList) {
-                        if (homeMember != person)
-                            homeMembers.add(homeMemberMapper.toDto(homeMember));
-                    }
-                    childAlertDto.setHomeMemberDtoList(homeMembers);
-                    result.add(childAlertDto);
+            ChildDto childDto = getChildDto(person);
+            if (childDto != null) {
+                List<HomeMemberDto> homeMembers = new ArrayList<>(); // liste des autres habitants du foyer
+                for (Person homeMember : personList) {
+                    if (homeMember != person)
+                        homeMembers.add(homeMemberMapper.toDto(homeMember));
                 }
+                childDto.setHomeMemberDtoList(homeMembers);
+                result.add(childDto);
             }
         }
         return result;
     }
 
 
-    public Iterable<PersonInfoDto> getPersonInfo(String lastName, String firstName) {
+    public Iterable<PersonForPersonInfoDto> getPersonInfoUrl(String lastName, String firstName) {
         Iterable<Person> personIterable = getPersons(lastName, firstName);
-        ArrayList<PersonInfoDto> result = new ArrayList<>();
+        ArrayList<PersonForPersonInfoDto> result = new ArrayList<>();
 
-        for(Person person : personIterable)
-            result.add(personInfoMapper.toDto(person, new PersonAndMedicalRecordConverter().findMedicalRecordFromPerson(person, medicalRecordRepository)));
+        for(Person person : personIterable) {
+            result.add(getDtoForPersonInfoUrl(person));
+        }
+        return result;
+    }
+
+    public Iterable<FloodDto> getFloodUrl(int[] stations) {
+        ArrayList<Firestation> firestationArrayList = new ArrayList<>();
+
+        for(int station : stations)
+            firestationArrayList.addAll(firestationRepository.findAllByStation(station));
+
+        ArrayList<FloodDto> result = new ArrayList<>();
+        ArrayList<PersonForFloodAndFireDto> personForFloodAndFireDtoArrayList = new ArrayList<>();
+
+        for (Firestation firestation : firestationArrayList){
+            String address = firestation.getAddress();
+            for(Person person : personRepository.findAllByAddress(address)) {
+                personForFloodAndFireDtoArrayList.add(getDtoForFloodUrlAndFireUrl(person));
+            }
+            FloodDto floodDto = new FloodDto();
+            floodDto.setAddress(address);
+            floodDto.setPersonForFloodAndFireDtoList(personForFloodAndFireDtoArrayList);
+            result.add(floodDto);
+        }
 
         return result;
     }
+
+    public Iterable<FireAddressDto> getFireUrl(String address) {
+
+        ArrayList<FireAddressDto> result = new ArrayList<>();
+
+        for(Firestation firestation : firestationRepository.findAllByAddress(address)){
+            List<Person> personList = personRepository.findAllByAddress(address);
+            ArrayList<PersonForFloodAndFireDto> personForFloodAndFireDtoList = new ArrayList<>();
+            for(Person person : personList){
+                personForFloodAndFireDtoList.add(getDtoForFloodUrlAndFireUrl(person));
+            }
+
+            FireAddressDto fireAddressDto = new FireAddressDto();
+            fireAddressDto.setStationNumber(firestation.getStation());
+            fireAddressDto.setPersonForFloodAndFireDtoList(personForFloodAndFireDtoList);
+
+            result.add(fireAddressDto);
+        }
+        return result;
+    }
+
 }

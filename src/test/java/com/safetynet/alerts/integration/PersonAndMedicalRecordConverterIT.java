@@ -6,13 +6,14 @@ import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
 import com.safetynet.alerts.util.PersonAndMedicalRecordConverter;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class PersonAndMedicalRecordConverterIT {
@@ -49,6 +50,15 @@ public class PersonAndMedicalRecordConverterIT {
 
         assertEquals(person.getFirstName(), medicalRecord.getFirstName());
         assertEquals(person.getLastName(), medicalRecord.getLastName());
+    }
+
+    @Test
+    public void testGetAgeFromMedicalRecord(){
+        medicalRecord = new MedicalRecord();
+        medicalRecord.setFirstName("John");
+        medicalRecord.setLastName("Doe");
+        medicalRecord.setBirthdate("01/01/2000");
+        assertEquals(21, classUnderTest.getAgeFromMedicalRecord(medicalRecord));
     }
 
 }

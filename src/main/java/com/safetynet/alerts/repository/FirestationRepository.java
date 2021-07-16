@@ -12,5 +12,6 @@ import java.util.List;
 public interface FirestationRepository extends CrudRepository<Firestation, Long>{
 
     List<Firestation> findAllByStation(int station);
+    List<Firestation> findAllByAddress(String address);
 
 }

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.safetynet.alerts.dto.PersonDto;
+import com.safetynet.alerts.dto.PersonForFirestationDto;
 import com.safetynet.alerts.dto.PersonPhoneDto;
-import com.safetynet.alerts.mappers.PersonMapper;
-import com.safetynet.alerts.mappers.PhoneAlertMapper;
+import com.safetynet.alerts.mapper.PersonForFirestationMapper;
+import com.safetynet.alerts.mapper.PhoneAlertMapper;
 import com.safetynet.alerts.model.Firestation;
 
 import com.safetynet.alerts.model.Person;
@@ -20,19 +20,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
-import lombok.Data;
-
-
-@Data
 @AllArgsConstructor
 @Service
 public class FirestationService {
 
-	private FirestationRepository firestationRepository;
-	private PersonRepository personRepository;
-	private MedicalRecordRepository medicalRecordRepository;
-	private PersonMapper personMapper;
-	private PhoneAlertMapper phoneAlertMapper;
+	private final FirestationRepository firestationRepository;
+	private final PersonRepository personRepository;
+	private final MedicalRecordRepository medicalRecordRepository;
+	private final PersonForFirestationMapper personForFirestationMapper;
+	private final PhoneAlertMapper phoneAlertMapper;
 	
 	public Optional<Firestation> getFirestation(final Long id) {
 		return firestationRepository.findById(id);
@@ -61,20 +57,26 @@ public class FirestationService {
 			personList.addAll(personRepository.findAllByAddress(firestation.getAddress()));
 		}
 
-		ArrayList<PersonDto> personDtoList = new ArrayList<>();
+		ArrayList<PersonForFirestationDto> personForFirestationDtoList = new ArrayList<>();
 		int numberOfAdults = 0;
 		int numberOfChildren = 0;
 		for(Person person : personList){
 
-			if(stringDateHandler.isAdult(person, medicalRecordRepository))
-				numberOfAdults++;
-			else
-				numberOfChildren++;
-			PersonDto personDto = personMapper.toDto(person);
-			personDtoList.add(personDto);
+			try {
+				if (stringDateHandler.isAdult(person, medicalRecordRepository))
+					numberOfAdults++;
+				else
+					numberOfChildren++;
+			}
+			catch(IllegalArgumentException e)
+			{
+
+			}
+			PersonForFirestationDto personForFirestationDto = personForFirestationMapper.toDto(person);
+			personForFirestationDtoList.add(personForFirestationDto);
 		}
 
-		return new PersonsCoveredByThisFirestationDto(numberOfAdults, numberOfChildren, personDtoList);
+		return new PersonsCoveredByThisFirestationDto(numberOfAdults, numberOfChildren, personForFirestationDtoList);
 	}
 
     public List<PersonPhoneDto> getPhoneAlert(int firestationNumber) {

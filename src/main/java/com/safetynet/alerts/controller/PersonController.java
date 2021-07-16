@@ -1,8 +1,6 @@
 package com.safetynet.alerts.controller;
 
-import com.safetynet.alerts.dto.PersonEmailDto;
-import com.safetynet.alerts.dto.PersonInfoDto;
-import com.safetynet.alerts.dto.ChildAlertDto;
+import com.safetynet.alerts.dto.*;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.PersonService;
 import lombok.AllArgsConstructor;
@@ -89,8 +87,8 @@ public class PersonController {
         return personService.getPersons();
     }
 
-    @DeleteMapping("/person/{lastName}/{firstName}")
-    public ResponseEntity<Person> deletePerson(@PathVariable("lastName") final String lastName, @PathVariable("firstName") final String firstName) {
+    @DeleteMapping("/person")
+    public ResponseEntity<Person> deletePerson(@RequestParam("lastName") final String lastName, @RequestParam("firstName") final String firstName) {
 
         try
         {
@@ -108,13 +106,19 @@ public class PersonController {
     }
 
     @GetMapping("/communityEmail")
-    public Iterable<PersonEmailDto> getCommunityEmail(@RequestParam("city") final String city) { return personService.getCommunityEmail(city); }
+    public Iterable<PersonEmailDto> getCommunityEmailUrl(@RequestParam("city") final String city) { return personService.getCommunityEmailUrl(city); }
 
     @GetMapping("/childAlert")
-    public Iterable<ChildAlertDto> getChildAlert(@RequestParam("address") final String address) { return personService.getChildAlert(address); }
+    public Iterable<ChildDto> getChildAlertUrl(@RequestParam("address") final String address) { return personService.getChildAlertUrl(address); }
 
     @GetMapping("/personInfo")
-    public Iterable<PersonInfoDto> getPersonInfo(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
-        return personService.getPersonInfo(lastName, firstName);
+    public Iterable<PersonForPersonInfoDto> getPersonInfoUrl(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
+        return personService.getPersonInfoUrl(lastName, firstName);
     }
+
+    @GetMapping("/flood/stations")
+    public Iterable<FloodDto> getFloodUrl(@RequestParam("station") final int[] stations) { return personService.getFloodUrl(stations); }
+
+    @GetMapping("/fire")
+    public Iterable<FireAddressDto> getFireUrl(@RequestParam("address") final String address) { return personService.getFireUrl(address); }
 }

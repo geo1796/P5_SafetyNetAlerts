@@ -1,4 +1,4 @@
-package com.safetynet.alerts.integration;
+package com.safetynet.alerts.integration.controller;
 
 
 import static com.safetynet.alerts.jsonParsing.Json.stringify;
@@ -27,13 +27,13 @@ public class PersonControllerIT {
 
     @Test
     public void testDeletePerson() throws Exception {
-        mockMvc.perform(delete("/person/Stelzer/Kendrik")).andExpect(status().isNoContent());
+        mockMvc.perform(delete("/person?lastName=Stelzer&firstName=Kendrik")).andExpect(status().isNoContent());
         mockMvc.perform(get("/person/21")).andExpect(status().isNotFound());
     }
 
     @Test
     public void testDeleteNotExistingPerson() throws Exception {
-        mockMvc.perform(delete("/person/Son/Goku")).andExpect(status().isNotFound());
+        mockMvc.perform(delete("/person?lastName=Son&firstName=Goku")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class PersonControllerIT {
         mockMvc.perform(post("/person").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(person))))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(delete("/person/Boyd/John")).andExpect(status().isMultipleChoices());
+        mockMvc.perform(delete("/person?lastName=Boyd&firstName=John")).andExpect(status().isMultipleChoices());
     }
 
     @Test
@@ -164,14 +164,29 @@ public class PersonControllerIT {
                 .andExpect(jsonPath("$[0].firstName", is("John")))
                 .andExpect(jsonPath("$[0].lastName", is("Boyd")))
                 .andExpect(jsonPath("$[0].address", is("1509 Culver St")))
-                .andExpect(jsonPath("$[0].email", is("jaboyd@email.com")));
-                //.andExpect(jsonPath("$[0].age", is(37)));
+                .andExpect(jsonPath("$[0].email", is("jaboyd@email.com")))
+                .andExpect(jsonPath("$[0].age", is(37)));
     }
 
     @Test
     public void testGetNotExistingPersonInfo() throws Exception{
         mockMvc.perform(get("/personInfo?firstName=abcd&lastName=efgh")).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    public void testGetFlood() throws Exception{
+        mockMvc.perform(get("/flood/stations?station=1")).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].address", is("644 Gershwin Cir")))
+                .andExpect(jsonPath("$[1].address", is("908 73rd St")))
+                .andExpect(jsonPath("$[2].address", is("947 E. Rose Dr")));
+    }
+
+    @Test
+    public void testGetFireAddress() throws Exception{
+        mockMvc.perform(get("/fire?address=112 Steppes Pl")).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].stationNumber", is(3)))
+                .andExpect(jsonPath("$[1].stationNumber", is(4)));
     }
 
 }

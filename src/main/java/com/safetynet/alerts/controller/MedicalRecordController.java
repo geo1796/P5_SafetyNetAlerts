@@ -87,8 +87,8 @@ public class MedicalRecordController {
         return medicalRecordService.getMedicalRecords();
     }
 
-    @DeleteMapping("/medicalRecord/{lastName}/{firstName}")
-    public ResponseEntity<MedicalRecord> deleteMedicalRecord(@PathVariable("lastName") final String lastName, @PathVariable("firstName") final String firstName) {
+    @DeleteMapping("/medicalRecord")
+    public ResponseEntity<MedicalRecord> deleteMedicalRecord(@RequestParam("lastName") final String lastName, @RequestParam("firstName") final String firstName) {
 
         try
         {

@@ -1,11 +1,15 @@
 package com.safetynet.alerts.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 
-@Data
-public class PersonInfoDto {
+@Getter
+@Setter
+@RequiredArgsConstructor
+public class PersonForPersonInfoDto {
 
     private String lastName;
     private String firstName;
