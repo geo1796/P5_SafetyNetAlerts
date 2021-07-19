@@ -1,13 +1,10 @@
 package com.safetynet.alerts;
 
-import com.safetynet.alerts.model.Person;
-import com.safetynet.alerts.repository.MedicalRecordRepository;
-import com.safetynet.alerts.util.PersonAndMedicalRecordConverter;
+
 import com.safetynet.alerts.util.StringDateHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
