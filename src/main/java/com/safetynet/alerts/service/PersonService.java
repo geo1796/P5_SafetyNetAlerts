@@ -27,7 +27,6 @@ public class PersonService {
     private final MedicalRecordRepository medicalRecordRepository;
     private final FirestationRepository firestationRepository;
     private final PersonEmailMapper personEmailMapper;
-    private final PersonForFirestationMapper personForFirestationMapper;
     private final ChildMapper childMapper;
     private final HomeMemberMapper homeMemberMapper;
     private final PersonForPersonInfoMapper personForPersonInfoMapper;

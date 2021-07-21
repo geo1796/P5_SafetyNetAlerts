@@ -14,14 +14,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 @AllArgsConstructor
 @SpringBootApplication
 public class AlertsApplication implements CommandLineRunner {
 
-	FirestationService firestationService;
-	PersonService personService;
-	MedicalRecordService medicalRecordService;
+	private static final Logger logger = LogManager.getLogger("AlertsApplication");
+	private FirestationService firestationService;
+	private PersonService personService;
+	private MedicalRecordService medicalRecordService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AlertsApplication.class, args);
@@ -34,6 +37,7 @@ public class AlertsApplication implements CommandLineRunner {
 		JsonNode node = Json.parse(jsonData);
 		AlertsData data = Json.fromJson(node, AlertsData.class);
 
+		logger.info("Initializing AlertsApplication");
 		firestationService.saveFirestations(data.getFirestations());
 		personService.savePersons(data.getPersons());
 		medicalRecordService.saveMedicalRecords(data.getMedicalRecords());

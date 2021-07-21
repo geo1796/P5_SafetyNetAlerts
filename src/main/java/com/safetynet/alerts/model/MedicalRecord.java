@@ -24,5 +24,4 @@ public class MedicalRecord {
     private ArrayList<String> medications;
     private ArrayList<String> allergies;
 
-
 }

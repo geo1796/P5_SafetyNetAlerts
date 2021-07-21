@@ -32,7 +32,8 @@ public class FirestationControllerIT {
 		f.setAddress("addressTest");
 		f.setStation(7);
 		mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
-				.andExpect(status().isCreated());
+				.andExpect(status().isCreated())
+				.andDo(print());
 
 		mockMvc.perform(get("/firestation/14")).andExpect(status().isOk()).andExpect(jsonPath("$.address", is("addressTest")))
 		.andExpect(jsonPath("$.station", is(7)));
