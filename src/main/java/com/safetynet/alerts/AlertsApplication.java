@@ -22,9 +22,9 @@ import org.apache.logging.log4j.LogManager;
 public class AlertsApplication implements CommandLineRunner {
 
 	private static final Logger logger = LogManager.getLogger("AlertsApplication");
-	private FirestationService firestationService;
-	private PersonService personService;
-	private MedicalRecordService medicalRecordService;
+	private final FirestationService firestationService;
+	private final PersonService personService;
+	private final MedicalRecordService medicalRecordService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AlertsApplication.class, args);
@@ -39,7 +39,7 @@ public class AlertsApplication implements CommandLineRunner {
 
 		logger.info("Initializing AlertsApplication");
 		firestationService.saveFirestations(data.getFirestations());
-		personService.savePersons(data.getPersons());
+		personService.savePeople(data.getPersons());
 		medicalRecordService.saveMedicalRecords(data.getMedicalRecords());
 
 	}

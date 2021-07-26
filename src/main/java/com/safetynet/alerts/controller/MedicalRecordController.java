@@ -29,13 +29,14 @@ public class MedicalRecordController {
     public ResponseEntity<MedicalRecord> createMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
         logger.info("calling method : createMedicalRecord / body : " + Json.toJson(medicalRecord));
         try {
-            LocalDate.parse(medicalRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/yyyy")); // va laver une DateTimeParseException si la date est invalide
-            if(medicalRecord.getFirstName().equals("") || medicalRecord.getLastName().equals("")) {
+            LocalDate.parse(medicalRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/yyyy")); // va lever une DateTimeParseException si la date est invalide
+            if(medicalRecord.getFirstName().equals("") || medicalRecord.getLastName().equals(""))
                 throw new DataIntegrityViolationException("not valid medicalRecord");
-            }
+            else if(medicalRecord.getId() != null)
+                throw new IllegalArgumentException("id is not null");
             return new ResponseEntity<>(medicalRecordService.saveMedicalRecord(medicalRecord), HttpStatus.CREATED);
         }
-        catch(DataIntegrityViolationException | DateTimeParseException e)
+        catch(DataIntegrityViolationException | DateTimeParseException | IllegalArgumentException e)
         {
             logger.error("error creating new medicalRecord : " + e);
             return new ResponseEntity<>(new MedicalRecord(), HttpStatus.BAD_REQUEST);

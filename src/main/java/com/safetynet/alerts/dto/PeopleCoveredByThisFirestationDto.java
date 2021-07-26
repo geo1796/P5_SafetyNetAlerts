@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class PersonsCoveredByThisFirestationDto {
+public class PeopleCoveredByThisFirestationDto {
     private int numberOfAdults;
     private int numberOfChildren;
     private List<PersonForFirestationDto> personCoveredByThisStation;

@@ -32,7 +32,7 @@ public class PersonService {
     private final PersonForPersonInfoMapper personForPersonInfoMapper;
     private final PersonForFloodAndFireMapper personForFloodAndFireMapper;
 
-    private PersonForFloodAndFireDto getDtoForFloodUrlAndFireUrl(Person person){
+     PersonForFloodAndFireDto getDtoForFloodAndFire(Person person){
         PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
         MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
         PersonForFloodAndFireDto personForFloodAndFireDto = personForFloodAndFireMapper.toDto(person, medicalRecord);
@@ -41,7 +41,7 @@ public class PersonService {
         return personForFloodAndFireDto;
     }
 
-    private PersonForPersonInfoDto getDtoForPersonInfoUrl(Person person){
+    PersonForPersonInfoDto getDtoForPersonInfo(Person person){
         PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
         MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
         PersonForPersonInfoDto personForPersonInfoDto = this.personForPersonInfoMapper.toDto(person, medicalRecord);
@@ -50,9 +50,9 @@ public class PersonService {
         return personForPersonInfoDto;
     }
 
-    private ChildDto getChildDto(Person person) {
+    ChildDto getChildDto(Person person) {
         PersonAndMedicalRecordConverter personAndMedicalRecordConverter = new PersonAndMedicalRecordConverter();
-        StringDateHandler stringDateHandler = new StringDateHandler("MM/dd/yyyy");
+        StringDateHandler stringDateHandler = new StringDateHandler();
         MedicalRecord medicalRecord = personAndMedicalRecordConverter.findMedicalRecordFromPerson(person, medicalRecordRepository);
         ChildDto childDto = null;
         if (medicalRecord != null) {
@@ -68,11 +68,11 @@ public class PersonService {
 
     public Person savePerson(Person person) { return personRepository.save(person); }
 
-    public List<Person> savePersons(List<Person> persons) { return (List<Person>) personRepository.saveAll(persons); }
+    public List<Person> savePeople(List<Person> persons) { return (List<Person>) personRepository.saveAll(persons); }
 
     public Optional<Person> getPerson(final long id) { return personRepository.findById(id); }
 
-    public Iterable<Person> getPersons(final String lastName, final String firstName){
+    public Iterable<Person> getPeople(final String lastName, final String firstName){
         List<Person> personListByFirstName = personRepository.findAllByFirstName(firstName);
         List<Person> personListByLastName = personRepository.findAllByLastName(lastName);
 
@@ -84,13 +84,13 @@ public class PersonService {
         return result;
     }
 
-    public Iterable<Person> getPersons() {
+    public Iterable<Person> getPeople() {
         return personRepository.findAll();
     }
 
     public Person deletePerson(final String lastName, final String firstName) throws IllegalArgumentException {
         Person personToDelete = null;
-        Iterable<Person> personIterable = getPersons(lastName, firstName);
+        Iterable<Person> personIterable = getPeople(lastName, firstName);
 
         for(Person person : personIterable){
             if(personToDelete == null)
@@ -107,7 +107,7 @@ public class PersonService {
             throw new EmptyResultDataAccessException(0);
     }
 
-    public Iterable<PersonEmailDto> getCommunityEmailUrl(String city) {
+    public Iterable<PersonEmailDto> getCommunityEmail(String city) {
         List<Person> personList = personRepository.findAllByCity(city);
         ArrayList<PersonEmailDto> listOfEmails = new ArrayList<>();
         for(Person person : personList){
@@ -118,7 +118,7 @@ public class PersonService {
     }
 
 
-    public Iterable<ChildDto> getChildAlertUrl(String address) {
+    public Iterable<ChildDto> getChildAlert(String address) {
         List<Person> personList = personRepository.findAllByAddress(address);
         List<ChildDto> result = new ArrayList<>();
 
@@ -138,29 +138,29 @@ public class PersonService {
     }
 
 
-    public Iterable<PersonForPersonInfoDto> getPersonInfoUrl(String lastName, String firstName) {
-        Iterable<Person> personIterable = getPersons(lastName, firstName);
+    public Iterable<PersonForPersonInfoDto> getPersonInfo(String lastName, String firstName) {
+        Iterable<Person> personIterable = getPeople(lastName, firstName);
         ArrayList<PersonForPersonInfoDto> result = new ArrayList<>();
 
         for(Person person : personIterable) {
-            result.add(getDtoForPersonInfoUrl(person));
+            result.add(getDtoForPersonInfo(person));
         }
         return result;
     }
 
-    public Iterable<FloodDto> getFloodUrl(int[] stations) {
+    public Iterable<FloodDto> getFlood(int[] stations) {
         ArrayList<Firestation> firestationArrayList = new ArrayList<>();
 
         for(int station : stations)
             firestationArrayList.addAll(firestationRepository.findAllByStation(station));
 
         ArrayList<FloodDto> result = new ArrayList<>();
-        ArrayList<PersonForFloodAndFireDto> personForFloodAndFireDtoArrayList = new ArrayList<>();
 
         for (Firestation firestation : firestationArrayList){
+            ArrayList<PersonForFloodAndFireDto> personForFloodAndFireDtoArrayList = new ArrayList<>();
             String address = firestation.getAddress();
             for(Person person : personRepository.findAllByAddress(address)) {
-                personForFloodAndFireDtoArrayList.add(getDtoForFloodUrlAndFireUrl(person));
+                personForFloodAndFireDtoArrayList.add(getDtoForFloodAndFire(person));
             }
             FloodDto floodDto = new FloodDto();
             floodDto.setAddress(address);
@@ -171,7 +171,7 @@ public class PersonService {
         return result;
     }
 
-    public Iterable<FireAddressDto> getFireUrl(String address) {
+    public Iterable<FireAddressDto> getFire(String address) {
 
         ArrayList<FireAddressDto> result = new ArrayList<>();
 
@@ -179,7 +179,7 @@ public class PersonService {
             List<Person> personList = personRepository.findAllByAddress(address);
             ArrayList<PersonForFloodAndFireDto> personForFloodAndFireDtoList = new ArrayList<>();
             for(Person person : personList){
-                personForFloodAndFireDtoList.add(getDtoForFloodUrlAndFireUrl(person));
+                personForFloodAndFireDtoList.add(getDtoForFloodAndFire(person));
             }
 
             FireAddressDto fireAddressDto = new FireAddressDto();

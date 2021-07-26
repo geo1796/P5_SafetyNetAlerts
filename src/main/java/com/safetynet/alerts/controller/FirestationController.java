@@ -3,7 +3,7 @@ package com.safetynet.alerts.controller;
 import com.safetynet.alerts.dto.PersonPhoneDto;
 import com.safetynet.alerts.jsonParsing.Json;
 import com.safetynet.alerts.model.Firestation;
-import com.safetynet.alerts.dto.PersonsCoveredByThisFirestationDto;
+import com.safetynet.alerts.dto.PeopleCoveredByThisFirestationDto;
 import com.safetynet.alerts.service.FirestationService;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,9 +28,11 @@ public class FirestationController {
     public ResponseEntity<Firestation> createFirestation(@RequestBody Firestation firestation) {
         logger.info("calling method : createFirestation / body : " + Json.toJson(firestation));
         try {
+            if (firestation.getId() != null)
+                throw new IllegalArgumentException("id is not null");
             return new ResponseEntity<>(firestationService.saveFirestation(firestation), HttpStatus.CREATED);
         }
-        catch(DataIntegrityViolationException e)
+        catch(DataIntegrityViolationException | IllegalArgumentException e)
         {
             logger.error("error creating firestation : " + e);
             return new ResponseEntity<>(new Firestation(), HttpStatus.BAD_REQUEST);
@@ -96,9 +98,16 @@ public class FirestationController {
 	}
 
     @GetMapping("/firestation")
-    public PersonsCoveredByThisFirestationDto getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
+    public PeopleCoveredByThisFirestationDto getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
         logger.info("calling method : getPersonByFirestation / stationNumber = " + stationNumber);
-        return firestationService.getPersonByFirestation(stationNumber);
+        try {
+            return firestationService.getPersonByFirestation(stationNumber);
+        }
+        catch(IllegalArgumentException e)
+        {
+            logger.error(e);
+        }
+        return new PeopleCoveredByThisFirestationDto();
     }
 
     @GetMapping("/phoneAlert")

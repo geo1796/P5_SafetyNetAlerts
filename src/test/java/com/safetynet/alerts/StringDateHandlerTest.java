@@ -23,7 +23,7 @@ public class StringDateHandlerTest {
     @BeforeAll
     public static void init(){
         testCase = "01/29/1999";
-        stringDateHandler = new StringDateHandler("MM/dd/yyyy");
+        stringDateHandler = new StringDateHandler();
     }
 
     @Test

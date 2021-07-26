@@ -29,9 +29,11 @@ public class PersonController {
         try {
             if(person.getZip() == 0)
                 throw new DataIntegrityViolationException("zip code can't be null");
+            else if (person.getId() != null)
+                throw new IllegalArgumentException("id is not null");
             return new ResponseEntity<>(personService.savePerson(person), HttpStatus.CREATED);
         }
-        catch(DataIntegrityViolationException e)
+        catch(DataIntegrityViolationException | IllegalArgumentException e)
         {
             logger.error("error creating new Person : " + e);
             return new ResponseEntity<>(new Person(), HttpStatus.BAD_REQUEST);
@@ -94,7 +96,7 @@ public class PersonController {
     @GetMapping("/persons")
     public Iterable<Person> getPersons() {
         logger.info("calling method : getPersons");
-        return personService.getPersons();
+        return personService.getPeople();
     }
 
     @DeleteMapping("/person")
@@ -120,30 +122,30 @@ public class PersonController {
     @GetMapping("/communityEmail")
     public Iterable<PersonEmailDto> getCommunityEmail(@RequestParam("city") final String city) {
         logger.info("calling method : getCommunityEmail / city = " + city);
-        return personService.getCommunityEmailUrl(city);
+        return personService.getCommunityEmail(city);
     }
 
     @GetMapping("/childAlert")
     public Iterable<ChildDto> getChildAlert(@RequestParam("address") final String address) {
         logger.info("calling method : getChildAlert / address = " + address);
-        return personService.getChildAlertUrl(address);
+        return personService.getChildAlert(address);
     }
 
     @GetMapping("/personInfo")
     public Iterable<PersonForPersonInfoDto> getPersonInfo(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
         logger.info("calling method : getPersonInfo / lastName = " + lastName + " / firstName = " + firstName);
-        return personService.getPersonInfoUrl(lastName, firstName);
+        return personService.getPersonInfo(lastName, firstName);
     }
 
     @GetMapping("/flood/stations")
     public Iterable<FloodDto> getFlood(@RequestParam("station") final int[] stations) {
         logger.info("calling method : getFlood / stations = " + Arrays.toString(stations));
-        return personService.getFloodUrl(stations);
+        return personService.getFlood(stations);
     }
 
     @GetMapping("/fire")
     public Iterable<FireAddressDto> getFire(@RequestParam("address") final String address) {
         logger.info("calling method : getFire / address = " + address);
-        return personService.getFireUrl(address);
+        return personService.getFire(address);
     }
 }

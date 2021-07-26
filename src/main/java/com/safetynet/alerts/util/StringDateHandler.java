@@ -11,11 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 public class StringDateHandler {
 
-    private final String pattern;
-
-    public StringDateHandler(String pattern){
-        this.pattern = pattern;
-    }
+    private final String pattern = "MM/dd/yyyy";
 
     public LocalDate convertStringToLocalDate(String birthDate){
         return LocalDate.parse(birthDate, DateTimeFormatter.ofPattern(this.pattern));

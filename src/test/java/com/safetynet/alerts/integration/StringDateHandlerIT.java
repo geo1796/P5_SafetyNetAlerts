@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -17,13 +19,19 @@ public class StringDateHandlerIT {
     private MedicalRecordRepository medicalRecordRepository;
     @Autowired
     private PersonRepository personRepository;
-    private StringDateHandler classUnderTest = new StringDateHandler("MM/dd/yyyy");
-    private Person testCase = new Person();
+
+    private final StringDateHandler classUnderTest = new StringDateHandler();
+    private final Person testCase = new Person();
 
     @Test
     public void testIsAdult() {
-        assertTrue(classUnderTest.isAdult(personRepository.findById(1L).get(), medicalRecordRepository));// L'id 1 est porté par l'adulte John Boyd
-        assertFalse(classUnderTest.isAdult(personRepository.findById(4L).get(), medicalRecordRepository)); // L'id 4 est porté par l'enfant Roger Boyd
+        Optional<Person> optionalPerson = personRepository.findById(1L);
+        assertTrue(optionalPerson.isPresent());
+        assertTrue(classUnderTest.isAdult(optionalPerson.get(), medicalRecordRepository));// L'id 1 est porté par l'adulte John Boyd
+
+        optionalPerson = personRepository.findById(4L);
+        assertTrue(optionalPerson.isPresent());
+        assertFalse(classUnderTest.isAdult(optionalPerson.get(), medicalRecordRepository)); // L'id 4 est porté par l'enfant Roger Boyd
     }
 
     @Test
