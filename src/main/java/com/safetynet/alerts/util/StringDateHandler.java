@@ -11,10 +11,9 @@ import java.time.format.DateTimeFormatter;
 
 public class StringDateHandler {
 
-    private final String pattern = "MM/dd/yyyy";
-
     public LocalDate convertStringToLocalDate(String birthDate){
-        return LocalDate.parse(birthDate, DateTimeFormatter.ofPattern(this.pattern));
+        String pattern = "MM/dd/yyyy";
+        return LocalDate.parse(birthDate, DateTimeFormatter.ofPattern(pattern));
     }
 
     public int getAgeFromStringDate(String birthDate){

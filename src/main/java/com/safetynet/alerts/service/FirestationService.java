@@ -48,7 +48,7 @@ public class FirestationService {
 
 	public List<Firestation> saveFirestations(List<Firestation> firestations) { return (List<Firestation>) firestationRepository.saveAll(firestations); }
 
-	public PeopleCoveredByThisFirestationDto getPersonByFirestation(int stationNumber){
+	public PeopleCoveredByThisFirestationDto getPeopleByFirestation(int stationNumber){
 		List<Person> personList = new ArrayList<>();
 		List<Firestation> firestations = firestationRepository.findAllByStation(stationNumber);
 		StringDateHandler stringDateHandler = new StringDateHandler();

@@ -18,6 +18,9 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.badResponse;
+import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.goodResponse;
+
 @AllArgsConstructor
 @RestController
 public class MedicalRecordController {
@@ -34,12 +37,11 @@ public class MedicalRecordController {
                 throw new DataIntegrityViolationException("not valid medicalRecord");
             else if(medicalRecord.getId() != null)
                 throw new IllegalArgumentException("id is not null");
-            return new ResponseEntity<>(medicalRecordService.saveMedicalRecord(medicalRecord), HttpStatus.CREATED);
+            return goodResponse(medicalRecordService.saveMedicalRecord(medicalRecord), HttpStatus.CREATED, logger);
         }
         catch(DataIntegrityViolationException | DateTimeParseException | IllegalArgumentException e)
         {
-            logger.error("error creating new medicalRecord : " + e);
-            return new ResponseEntity<>(new MedicalRecord(), HttpStatus.BAD_REQUEST);
+            return badResponse(new MedicalRecord(), HttpStatus.BAD_REQUEST, e, "error creating new medicalRecord", logger);
         }
     }
 
@@ -56,8 +58,7 @@ public class MedicalRecordController {
                 try {
                     LocalDate.parse(newBirthDate, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
                 } catch (DateTimeParseException e) {
-                    logger.error("error updating medicalRecord : " + e);
-                    return new ResponseEntity<>(medicalRecord, HttpStatus.BAD_REQUEST);
+                    return badResponse(medicalRecord, HttpStatus.BAD_REQUEST, e, "error updating medicalRecord", logger);
                 }
             }
 
@@ -77,7 +78,7 @@ public class MedicalRecordController {
             }
 
             medicalRecordService.saveMedicalRecord(currentMedicalRecord);
-            return new ResponseEntity<>(currentMedicalRecord, HttpStatus.OK);
+            return goodResponse(currentMedicalRecord, HttpStatus.OK, logger);
         }
         else {
             return createMedicalRecord(medicalRecord);
@@ -88,13 +89,24 @@ public class MedicalRecordController {
     public ResponseEntity<MedicalRecord> getMedicalRecord(@PathVariable("id") final Long id) {
         logger.info("calling method : getMedicalRecord / id = " + id);
         Optional<MedicalRecord> medicalRecord = medicalRecordService.getMedicalRecord(id);
-        return medicalRecord.map(record -> new ResponseEntity<>(record, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(medicalRecord.orElse(null), HttpStatus.NOT_FOUND));
+        ResponseEntity<MedicalRecord> result = medicalRecord.map(record -> new ResponseEntity<>(record, HttpStatus.OK)).orElseGet(() ->
+                new ResponseEntity<>(medicalRecord.orElse(null), HttpStatus.NOT_FOUND));
+        HttpStatus httpStatus = result.getStatusCode();
+        if(httpStatus == HttpStatus.OK)
+            logger.info("HTTP response : " + result.getStatusCode());
+        else{
+            logger.error("No medicalRecord for id = " + id);
+            logger.error("HTTP response : " + httpStatus);
+        }
+        return result;
     }
 
     @GetMapping("/medicalRecords")
-    public Iterable<MedicalRecord> getMedicalRecords() {
+    public ResponseEntity<Iterable<MedicalRecord>> getMedicalRecords() {
         logger.info("calling method : getMedicalRecords");
-        return medicalRecordService.getMedicalRecords();
+        ResponseEntity<Iterable<MedicalRecord>> result = new ResponseEntity<>(medicalRecordService.getMedicalRecords(), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @DeleteMapping("/medicalRecord")
@@ -102,17 +114,15 @@ public class MedicalRecordController {
         logger.info("calling method : deleteMedicalRecord / lastName = " + lastName + " / firstName = " + firstName);
         try
         {
-            return new ResponseEntity<>(medicalRecordService.deleteMedicalRecord(lastName, firstName), HttpStatus.NO_CONTENT);
+            return goodResponse(medicalRecordService.deleteMedicalRecord(lastName, firstName), HttpStatus.NO_CONTENT, logger);
         }
         catch(EmptyResultDataAccessException e)
         {
-            logger.error("error deleting medicalRecord : " + e);
-            return new ResponseEntity<>(new MedicalRecord(), HttpStatus.NOT_FOUND);
+            return badResponse(new MedicalRecord(), HttpStatus.NOT_FOUND, e, "error deleting medicalRecord", logger);
         }
         catch (IllegalArgumentException e)
         {
-            logger.error("error deleting medicalRecord : " + e);
-            return new ResponseEntity<>(new MedicalRecord(), HttpStatus.MULTIPLE_CHOICES);
+            return badResponse(new MedicalRecord(), HttpStatus.MULTIPLE_CHOICES, e, "error deleting medicalRecord", logger);
         }
     }
 }

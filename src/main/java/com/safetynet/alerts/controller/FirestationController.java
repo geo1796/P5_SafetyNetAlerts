@@ -1,10 +1,11 @@
 package com.safetynet.alerts.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.safetynet.alerts.dto.PersonPhoneDto;
-import com.safetynet.alerts.jsonParsing.Json;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.dto.PeopleCoveredByThisFirestationDto;
 import com.safetynet.alerts.service.FirestationService;
+import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,6 +18,10 @@ import java.util.Optional;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import static com.safetynet.alerts.jsonParsing.Json.toJson;
+import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.badResponse;
+import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.goodResponse;
+
 @AllArgsConstructor
 @RestController
 public class FirestationController {
@@ -26,30 +31,30 @@ public class FirestationController {
 
     @PostMapping("/firestation")
     public ResponseEntity<Firestation> createFirestation(@RequestBody Firestation firestation) {
-        logger.info("calling method : createFirestation / body : " + Json.toJson(firestation));
+        JsonNode body = toJson(firestation);
+        logger.info("calling method : createFirestation / body : " + body);
         try {
             if (firestation.getId() != null)
                 throw new IllegalArgumentException("id is not null");
-            return new ResponseEntity<>(firestationService.saveFirestation(firestation), HttpStatus.CREATED);
+            return goodResponse(firestationService.saveFirestation(firestation), HttpStatus.CREATED, logger);
         }
         catch(DataIntegrityViolationException | IllegalArgumentException e)
         {
-            logger.error("error creating firestation : " + e);
-            return new ResponseEntity<>(new Firestation(), HttpStatus.BAD_REQUEST);
+            return badResponse(new Firestation(), HttpStatus.BAD_REQUEST, e, "error creating firestation", logger);
         }
     }
 
     @GetMapping("/firestations")
-    public Iterable<Firestation> getFirestations() {
-        logger.info("calling method : getFirestations");
-        return firestationService.getFirestations();
+    public ResponseEntity<Iterable<Firestation>> getFirestations() {
+        return goodResponse(firestationService.getFirestations(), HttpStatus.OK, logger);
     }
 
     @GetMapping("/firestation/{id}")
     public ResponseEntity<Firestation> getFirestation(@PathVariable("id") final Long id) {
         logger.info("calling method : getFirestation / id = " + id);
         Optional<Firestation> firestation = firestationService.getFirestation(id);
-        return firestation.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(firestation.orElse(null), HttpStatus.NOT_FOUND));
+        return firestation.map(value -> goodResponse(value, HttpStatus.OK, logger)).orElseGet(() -> badResponse(new Firestation(), HttpStatus.NOT_FOUND, new IllegalArgumentException(), "No firestation for id : " + id, logger));
+
     }
 
     @DeleteMapping("/firestation/{id}")
@@ -61,18 +66,16 @@ public class FirestationController {
         }
         catch(EmptyResultDataAccessException e)
         {
-            logger.error("error deleting firestation : " + e);
-            return new ResponseEntity<>(new Firestation(), HttpStatus.NOT_FOUND);
+            return badResponse(new Firestation(), HttpStatus.NOT_FOUND, e, "error deleting firestation", logger);
         }
 
-        return new ResponseEntity<>(new Firestation(), HttpStatus.NO_CONTENT);
-
+        return goodResponse(new Firestation(), HttpStatus.NO_CONTENT, logger);
     }
 
 
     @PutMapping("/firestation/{id}")
 	public ResponseEntity<Firestation> updateFirestation(@PathVariable("id") final Long id, @RequestBody Firestation firestation) {
-        logger.info("calling method updateFirestation / id = " + id + " / body : " + Json.toJson(firestation));
+        logger.info("calling method updateFirestation / id = " + id + " / body : " + toJson(firestation));
 		Optional<Firestation> f = firestationService.getFirestation(id);
 		if(f.isPresent()) {
 			Firestation currentFirestation = f.get();
@@ -88,32 +91,37 @@ public class FirestationController {
 			}
 
 			firestationService.saveFirestation(currentFirestation);
-			return new ResponseEntity<>(currentFirestation, HttpStatus.OK);
+            return goodResponse(currentFirestation, HttpStatus.OK, logger);
 		}
 		else if (firestation.getAddress() != null && firestation.getStation() != 0)
 		    return createFirestation(firestation);
 
-		return new ResponseEntity<>(firestation, HttpStatus.BAD_REQUEST);
-
+        return badResponse(firestation, HttpStatus.BAD_REQUEST, new IllegalArgumentException(), "Not valid firestation", logger);
 	}
 
     @GetMapping("/firestation")
-    public PeopleCoveredByThisFirestationDto getPersonByFirestation(@RequestParam("stationNumber") final int stationNumber) {
+    public ResponseEntity<PeopleCoveredByThisFirestationDto> getPeopleByFirestation(@RequestParam("stationNumber") final int stationNumber) {
         logger.info("calling method : getPersonByFirestation / stationNumber = " + stationNumber);
         try {
-            return firestationService.getPersonByFirestation(stationNumber);
+            ResponseEntity<PeopleCoveredByThisFirestationDto> result = new ResponseEntity<>(firestationService.getPeopleByFirestation(stationNumber),
+                    HttpStatus.OK);
+            logger.info("HTTP response : " + result.getStatusCode());
+            return result;
         }
         catch(IllegalArgumentException e)
         {
-            logger.error(e);
+            logger.error("error in method getPeopleByFirestation : " + e);
         }
-        return new PeopleCoveredByThisFirestationDto();
+        ResponseEntity<PeopleCoveredByThisFirestationDto> result = new ResponseEntity<>(new PeopleCoveredByThisFirestationDto(), HttpStatus.BAD_REQUEST);
+        logger.error("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @GetMapping("/phoneAlert")
-    public List<PersonPhoneDto> getPhoneAlert(@RequestParam("firestation") final int firestationNumber) {
+    public ResponseEntity<List<PersonPhoneDto>> getPhoneAlert(@RequestParam("firestation") final int firestationNumber) {
         logger.info("calling method : phoneAlert / firestationNumber = " + firestationNumber);
-        return firestationService.getPhoneAlert(firestationNumber);
+        ResponseEntity<List<PersonPhoneDto>> result = new ResponseEntity<>(firestationService.getPhoneAlert(firestationNumber), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
-
 }

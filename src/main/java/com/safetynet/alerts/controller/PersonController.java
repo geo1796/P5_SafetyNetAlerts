@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.badResponse;
+import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.goodResponse;
+
 @AllArgsConstructor
 @RestController
 public class PersonController {
@@ -31,12 +34,11 @@ public class PersonController {
                 throw new DataIntegrityViolationException("zip code can't be null");
             else if (person.getId() != null)
                 throw new IllegalArgumentException("id is not null");
-            return new ResponseEntity<>(personService.savePerson(person), HttpStatus.CREATED);
+            return goodResponse(personService.savePerson(person), HttpStatus.CREATED, logger);
         }
         catch(DataIntegrityViolationException | IllegalArgumentException e)
         {
-            logger.error("error creating new Person : " + e);
-            return new ResponseEntity<>(new Person(), HttpStatus.BAD_REQUEST);
+            return badResponse(new Person(), HttpStatus.BAD_REQUEST, e, "error creating new Person", logger);
         }
     }
 
@@ -51,7 +53,7 @@ public class PersonController {
             String personLastName = person.getLastName();
 
             if( ( personFirstName != null && !personFirstName.equals(currentPerson.getFirstName())) || ( personLastName != null && !personLastName.equals(currentPerson.getLastName())))
-                return new ResponseEntity<>(new Person(), HttpStatus.BAD_REQUEST);
+                return badResponse(new Person(), HttpStatus.BAD_REQUEST, new IllegalArgumentException(), "Not valid person", logger);
 
             String address = person.getAddress();
             if(address != null) {
@@ -79,7 +81,7 @@ public class PersonController {
             }
 
             personService.savePerson(currentPerson);
-            return new ResponseEntity<>(currentPerson, HttpStatus.OK);
+            return goodResponse(currentPerson, HttpStatus.OK, logger);
         }
         else {
             return createPerson(person);
@@ -90,13 +92,16 @@ public class PersonController {
     public ResponseEntity<Person> getPerson(@PathVariable("id") final Long id) {
         logger.info("calling method : getPerson / id = " + id);
         Optional<Person> person = personService.getPerson(id);
-        return person.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(person.orElse(null), HttpStatus.NOT_FOUND));
+        return person.map(value -> goodResponse(value, HttpStatus.OK, logger)).orElseGet(() ->
+                badResponse(new Person(), HttpStatus.NOT_FOUND, new IllegalArgumentException(), "No Person for id = " + id, logger));
     }
 
     @GetMapping("/persons")
-    public Iterable<Person> getPersons() {
+    public ResponseEntity<Iterable<Person>> getPersons() {
         logger.info("calling method : getPersons");
-        return personService.getPeople();
+        ResponseEntity<Iterable<Person>> result = new ResponseEntity<>(personService.getPeople(), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @DeleteMapping("/person")
@@ -104,48 +109,56 @@ public class PersonController {
         logger.info("calling method : deletePerson / lastName = " + lastName + " / firstName = " + firstName);
         try
         {
-            return new ResponseEntity<>(personService.deletePerson(lastName, firstName), HttpStatus.NO_CONTENT);
+            return goodResponse(personService.deletePerson(lastName, firstName), HttpStatus.NO_CONTENT, logger);
         }
         catch(EmptyResultDataAccessException e)
         {
-            logger.error("error deleting person : " + e);
-            return new ResponseEntity<>(new Person(), HttpStatus.NOT_FOUND);
+            return badResponse(new Person(), HttpStatus.NOT_FOUND, e, "error deleting person", logger);
         }
         catch (IllegalArgumentException e)
         {
-            logger.error("error deleting person : " + e);
-            return new ResponseEntity<>(new Person(), HttpStatus.MULTIPLE_CHOICES);
+            return badResponse(new Person(), HttpStatus.MULTIPLE_CHOICES, e, "error deleting person", logger);
         }
 
     }
 
     @GetMapping("/communityEmail")
-    public Iterable<PersonEmailDto> getCommunityEmail(@RequestParam("city") final String city) {
+    public ResponseEntity<Iterable<PersonEmailDto>> getCommunityEmail(@RequestParam("city") final String city) {
         logger.info("calling method : getCommunityEmail / city = " + city);
-        return personService.getCommunityEmail(city);
+        ResponseEntity<Iterable<PersonEmailDto>> result = new ResponseEntity<>(personService.getCommunityEmail(city), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @GetMapping("/childAlert")
-    public Iterable<ChildDto> getChildAlert(@RequestParam("address") final String address) {
+    public ResponseEntity<Iterable<ChildDto>> getChildAlert(@RequestParam("address") final String address) {
         logger.info("calling method : getChildAlert / address = " + address);
-        return personService.getChildAlert(address);
+        ResponseEntity<Iterable<ChildDto>> result = new ResponseEntity<>(personService.getChildAlert(address), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @GetMapping("/personInfo")
-    public Iterable<PersonForPersonInfoDto> getPersonInfo(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
+    public ResponseEntity<Iterable<PersonForPersonInfoDto>> getPersonInfo(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
         logger.info("calling method : getPersonInfo / lastName = " + lastName + " / firstName = " + firstName);
-        return personService.getPersonInfo(lastName, firstName);
+        ResponseEntity<Iterable<PersonForPersonInfoDto>> result = new ResponseEntity<>(personService.getPersonInfo(lastName, firstName), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @GetMapping("/flood/stations")
-    public Iterable<FloodDto> getFlood(@RequestParam("station") final int[] stations) {
+    public ResponseEntity<Iterable<FloodDto>> getFlood(@RequestParam("station") final int[] stations) {
         logger.info("calling method : getFlood / stations = " + Arrays.toString(stations));
-        return personService.getFlood(stations);
+        ResponseEntity<Iterable<FloodDto>> result = new ResponseEntity<>(personService.getFlood(stations), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 
     @GetMapping("/fire")
-    public Iterable<FireAddressDto> getFire(@RequestParam("address") final String address) {
+    public ResponseEntity<Iterable<FireAddressDto>> getFire(@RequestParam("address") final String address) {
         logger.info("calling method : getFire / address = " + address);
-        return personService.getFire(address);
+        ResponseEntity<Iterable<FireAddressDto>> result = new ResponseEntity<>(personService.getFire(address), HttpStatus.OK);
+        logger.info("HTTP response : " + result.getStatusCode());
+        return result;
     }
 }

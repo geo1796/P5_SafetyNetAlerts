@@ -11,7 +11,6 @@ import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repository.FirestationRepository;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
-import com.safetynet.alerts.service.FirestationService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -136,7 +135,7 @@ public class FirestationServiceTest {
         when(personForFirestationMapper.toDto(p2)).thenReturn(personForFirestationDto2);
 
         PeopleCoveredByThisFirestationDto expected = new PeopleCoveredByThisFirestationDto(1, 1, personForFirestationDtoArrayList);
-        PeopleCoveredByThisFirestationDto result = firestationService.getPersonByFirestation(0);
+        PeopleCoveredByThisFirestationDto result = firestationService.getPeopleByFirestation(0);
         assertEquals(expected.getNumberOfAdults(), result.getNumberOfAdults());
         assertEquals(expected.getNumberOfChildren(), result.getNumberOfChildren());
         assertEquals(expected.getPersonCoveredByThisStation(), result.getPersonCoveredByThisStation());
