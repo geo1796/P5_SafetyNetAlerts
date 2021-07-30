@@ -7,6 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * A util class to simplify the controllers coding
+ */
 public class ResponseEntityAndLoggerHandler {
 
     public static ResponseEntity<Firestation> goodResponse(Firestation firestation, HttpStatus httpStatus, Logger logger){

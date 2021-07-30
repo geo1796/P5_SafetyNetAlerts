@@ -64,6 +64,7 @@ public class PersonServiceTest {
     private static final ArrayList<PersonForFloodAndFireDto> peopleForFloodAndFireDto1 = new ArrayList<>();
     private static final ArrayList<PersonForFloodAndFireDto> peopleForFloodAndFireDto2 = new ArrayList<>();
 
+
     static void initPersonObjects(){
         p1.setFirstName("John");
         p1.setId(1L);

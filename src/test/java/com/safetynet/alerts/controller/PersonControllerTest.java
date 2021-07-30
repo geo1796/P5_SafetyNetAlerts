@@ -45,7 +45,7 @@ public class PersonControllerTest {
 
     @Test
     public void testGetPersons() throws Exception{
-        mockMvc.perform(get("/persons"));
+        mockMvc.perform(get("/people"));
     }
 
     @Test

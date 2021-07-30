@@ -19,6 +19,10 @@ import java.util.Optional;
 import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.badResponse;
 import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.goodResponse;
 
+/**
+ * the controller corresponding to the entity Person
+ */
+
 @AllArgsConstructor
 @RestController
 public class PersonController {
@@ -26,12 +30,20 @@ public class PersonController {
     private static final Logger logger = LogManager.getLogger("PersonController");
     private final PersonService personService;
 
+    /**
+     *
+     * @param person the Person object you want to post
+     * @return a ResponseEntity object containing the person you posted and http status 201 if the request was successfully handled,
+     * if not the status will be 400
+     */
+
     @PostMapping("/person")
     public ResponseEntity<Person> createPerson(@RequestBody Person person) {
         logger.info("calling method : createPerson / body : " + Json.toJson(person));
         try {
-            if(person.getZip() == 0)
-                throw new DataIntegrityViolationException("zip code can't be null");
+            if(person.getZip() == 0 || person.getFirstName().equals("") || person.getLastName().equals("") ||
+            person.getEmail().equals("") || person.getCity().equals("") )
+                throw new DataIntegrityViolationException("invalid field(s)");
             else if (person.getId() != null)
                 throw new IllegalArgumentException("id is not null");
             return goodResponse(personService.savePerson(person), HttpStatus.CREATED, logger);
@@ -41,6 +53,14 @@ public class PersonController {
             return badResponse(new Person(), HttpStatus.BAD_REQUEST, e, "error creating new Person", logger);
         }
     }
+
+    /**
+     *
+     * @param id the id of the Person object you want to update
+     * @param person the Person object carrying the infos you need for the update
+     * @return a ResponseEntity object containing the updated Person object with https status 200 (or 201 if there was no object for this id) if the request was successfully handled,
+     * if not the status will be 400
+     */
 
     @PutMapping("/person/{id}")
     public ResponseEntity<Person> updatePerson(@PathVariable("id") final Long id, @RequestBody Person person) {
@@ -88,6 +108,13 @@ public class PersonController {
         }
     }
 
+    /**
+     *
+     * @param id the id of the Person object you want to get
+     * @return a ResponseEntity object containing the Person object for this id with http status 200,
+     * or http status 404 if nothing was found for this id
+     */
+
     @GetMapping("/person/{id}")
     public ResponseEntity<Person> getPerson(@PathVariable("id") final Long id) {
         logger.info("calling method : getPerson / id = " + id);
@@ -96,13 +123,26 @@ public class PersonController {
                 badResponse(new Person(), HttpStatus.NOT_FOUND, new IllegalArgumentException(), "No Person for id = " + id, logger));
     }
 
-    @GetMapping("/persons")
-    public ResponseEntity<Iterable<Person>> getPersons() {
-        logger.info("calling method : getPersons");
+    /**
+     *
+     * @return a ResponseEntity object containing an Iterable (possibly empty) of all the Person objects with http status 200
+     */
+
+    @GetMapping("/people")
+    public ResponseEntity<Iterable<Person>> getPeople() {
+        logger.info("calling method : getPeople");
         ResponseEntity<Iterable<Person>> result = new ResponseEntity<>(personService.getPeople(), HttpStatus.OK);
         logger.info("HTTP response : " + result.getStatusCode());
         return result;
     }
+
+    /**
+     *
+     * @param lastName the last name of the Person object you want to delete
+     * @param firstName the first name of the Person object you want to delete
+     * @return a ResponseEntity object containing a new Person object with http status 204 if the request was successfully handled,
+     * if nothing was found the status will be 404 and if there are many Person objects for these parameters the status will be 300
+     */
 
     @DeleteMapping("/person")
     public ResponseEntity<Person> deletePerson(@RequestParam("lastName") final String lastName, @RequestParam("firstName") final String firstName) {
@@ -122,6 +162,12 @@ public class PersonController {
 
     }
 
+    /**
+     *
+     * @param city the city corresponding to the emails you want to get
+     * @return a ResponseEntity object containing an Iterable (possibly empty) of all the emails of the people in this city with http status 200
+     */
+
     @GetMapping("/communityEmail")
     public ResponseEntity<Iterable<PersonEmailDto>> getCommunityEmail(@RequestParam("city") final String city) {
         logger.info("calling method : getCommunityEmail / city = " + city);
@@ -129,6 +175,12 @@ public class PersonController {
         logger.info("HTTP response : " + result.getStatusCode());
         return result;
     }
+
+    /**
+     *
+     * @param address the address corresponding to the list of children that you want to get
+     * @return a ResponseEntity object containing an Iterable (possibly empty) of the children who live at this address with http status 200
+     */
 
     @GetMapping("/childAlert")
     public ResponseEntity<Iterable<ChildDto>> getChildAlert(@RequestParam("address") final String address) {
@@ -138,6 +190,13 @@ public class PersonController {
         return result;
     }
 
+    /**
+     *
+     * @param firstName the first name of the Person you want to get
+     * @param lastName the last name of the Person you want to get
+     * @return a ResponseEntity object containing an Iterable of PersonForPersonInfoDto (possibly empty) of all the Person with this first name and last name
+     */
+
     @GetMapping("/personInfo")
     public ResponseEntity<Iterable<PersonForPersonInfoDto>> getPersonInfo(@RequestParam("firstName") final String firstName, @RequestParam("lastName") final String lastName){
         logger.info("calling method : getPersonInfo / lastName = " + lastName + " / firstName = " + firstName);
@@ -146,6 +205,12 @@ public class PersonController {
         return result;
     }
 
+    /**
+     *
+     * @param stations the stations that you want to get the people covered from
+     * @return a ResponseEntity object containing an Iterable (possibly empty) of FloodDto objects with http status 200
+     */
+
     @GetMapping("/flood/stations")
     public ResponseEntity<Iterable<FloodDto>> getFlood(@RequestParam("station") final int[] stations) {
         logger.info("calling method : getFlood / stations = " + Arrays.toString(stations));
@@ -153,6 +218,12 @@ public class PersonController {
         logger.info("HTTP response : " + result.getStatusCode());
         return result;
     }
+
+    /**
+     *
+     * @param address the address of the stations you are interested in
+     * @return a ResponseEntity object containing an Iterable (possibly empty) of FireAddressDto objects for this address with http status 200
+     */
 
     @GetMapping("/fire")
     public ResponseEntity<Iterable<FireAddressDto>> getFire(@RequestParam("address") final String address) {

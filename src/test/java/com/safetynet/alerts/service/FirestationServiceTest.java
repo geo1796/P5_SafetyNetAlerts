@@ -46,15 +46,15 @@ public class FirestationServiceTest {
     @InjectMocks
     private FirestationService firestationService;
 
-    private static Firestation f1 = new Firestation();
-    private static Firestation f2 = new Firestation();
-    private static MedicalRecord m1 = new MedicalRecord();
-    private static MedicalRecord m2 = new MedicalRecord();
-    private static Person p1 = new Person();
-    private static Person p2 = new Person();
-    private static ArrayList<Firestation> firestations = new ArrayList<>();
-    private static ArrayList<Person> people1 = new ArrayList<>();
-    private static ArrayList<Person> people2 = new ArrayList<>();
+    private static final Firestation f1 = new Firestation();
+    private static final Firestation f2 = new Firestation();
+    private static final MedicalRecord m1 = new MedicalRecord();
+    private static final MedicalRecord m2 = new MedicalRecord();
+    private static final Person p1 = new Person();
+    private static final Person p2 = new Person();
+    private static final ArrayList<Firestation> firestations = new ArrayList<>();
+    private static final ArrayList<Person> people1 = new ArrayList<>();
+    private static final ArrayList<Person> people2 = new ArrayList<>();
 
 
     @BeforeAll

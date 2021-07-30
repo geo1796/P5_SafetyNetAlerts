@@ -21,12 +21,23 @@ import java.util.Optional;
 import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.badResponse;
 import static com.safetynet.alerts.util.ResponseEntityAndLoggerHandler.goodResponse;
 
+/**
+ * the controller corresponding to the entity MedicalRecord
+ */
+
 @AllArgsConstructor
 @RestController
 public class MedicalRecordController {
 
     private static final Logger logger = LogManager.getLogger("MedicalRecordController");
     private final MedicalRecordService medicalRecordService;
+
+    /**
+     *
+     * @param medicalRecord the medicalRecord object you want to post
+     * @return a ResponseEntity object containing the medicalRecord you posted and http status 201 if the request was successfully handled,
+     * if not the status will be 400
+     */
 
     @PostMapping("/medicalRecord")
     public ResponseEntity<MedicalRecord> createMedicalRecord(@RequestBody MedicalRecord medicalRecord) {
@@ -44,6 +55,14 @@ public class MedicalRecordController {
             return badResponse(new MedicalRecord(), HttpStatus.BAD_REQUEST, e, "error creating new medicalRecord", logger);
         }
     }
+
+    /**
+     *
+     * @param id the id of the medicalRecord object you want to update
+     * @param medicalRecord the medicalRecord object carrying the infos you need to update
+     * @return a ResponseEntity object containing the updated medicalRecord with http status 200 (or 201 if there was no object for this id) if the request was successfully handled,
+     * if not the http status will be 400
+     */
 
     @PutMapping("/medicalRecord/{id}")
     public ResponseEntity<MedicalRecord> updateMedicalRecord(@PathVariable("id") final Long id, @RequestBody MedicalRecord medicalRecord) {
@@ -85,6 +104,13 @@ public class MedicalRecordController {
         }
     }
 
+    /**
+     *
+     * @param id the id of the medicalRecord object you want to get
+     * @return a ResponseEntity object containing the medicalRecord you asked for with http status 200 if the request was successfully handled,
+     * if no medicalRecord was found the http status will be 404
+     */
+
     @GetMapping("/medicalRecord/{id}")
     public ResponseEntity<MedicalRecord> getMedicalRecord(@PathVariable("id") final Long id) {
         logger.info("calling method : getMedicalRecord / id = " + id);
@@ -101,6 +127,11 @@ public class MedicalRecordController {
         return result;
     }
 
+    /**
+     *
+     * @return a ResponseEntity object containing an Iterable (possibly empty) of all the medicalRecord objects with http status 200
+     */
+
     @GetMapping("/medicalRecords")
     public ResponseEntity<Iterable<MedicalRecord>> getMedicalRecords() {
         logger.info("calling method : getMedicalRecords");
@@ -108,6 +139,14 @@ public class MedicalRecordController {
         logger.info("HTTP response : " + result.getStatusCode());
         return result;
     }
+
+    /**
+     *
+     * @param lastName the last name of the medicalRecord you want to delete
+     * @param firstName the first name of the medicalRecord you want to delete
+     * @return a ResponseEntity object containing a new medicalRecord object with http status 204 if the request was successfully handled,
+     * if there is no medicalRecord found the status will be 404 and if there are many medicalRecords the status will be 300
+     */
 
     @DeleteMapping("/medicalRecord")
     public ResponseEntity<MedicalRecord> deleteMedicalRecord(@RequestParam("lastName") final String lastName, @RequestParam("firstName") final String firstName) {

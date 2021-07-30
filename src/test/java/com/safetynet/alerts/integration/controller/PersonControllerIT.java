@@ -129,8 +129,8 @@ public class PersonControllerIT {
 
     @Order(1)
     @Test
-    public void testGetPersons() throws Exception {
-        mockMvc.perform(get("/persons")).andExpect(status().isOk())
+    public void testGetPeople() throws Exception {
+        mockMvc.perform(get("/people")).andExpect(status().isOk())
         .andExpect(jsonPath("$", hasSize(23)))
         .andExpect(jsonPath("$[0].firstName", is("John")));
     }

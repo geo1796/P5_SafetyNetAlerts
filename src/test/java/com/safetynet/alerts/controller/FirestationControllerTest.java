@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.safetynet.alerts.controller.FirestationController;
 import com.safetynet.alerts.model.Firestation;
 import com.safetynet.alerts.service.FirestationService;
 import com.safetynet.alerts.service.MedicalRecordService;
@@ -42,7 +41,10 @@ public class FirestationControllerTest {
 
     @Test
     public void testCreateFirestation() throws Exception{
-        mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(new Firestation()))))
+        Firestation f = new Firestation();
+        f.setAddress("address");
+        f.setStation(1);
+        mockMvc.perform(post("/firestation").contentType(MediaType.APPLICATION_JSON).content(stringify(toJson(f))))
                 .andExpect(status().isCreated());
     }
 
